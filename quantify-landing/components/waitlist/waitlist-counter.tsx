@@ -6,18 +6,32 @@
 import { useEffect, useState } from 'react'
 import { Users } from 'lucide-react'
 
-export function WaitlistCounter() {
-  const [count, setCount] = useState(1247)
+interface WaitlistCounterProps {
+  hideWhenEmpty?: boolean
+  className?: string
+}
+
+export function WaitlistCounter({
+  hideWhenEmpty = false,
+  className = '',
+}: WaitlistCounterProps) {
+  const [count, setCount] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchCount = async () => {
       try {
-        const response = await fetch('/api/waitlist')
+        const response = await fetch('/api/waitlist', { cache: 'no-store' })
         const data = await response.json()
-        setCount(data.total || 1247)
+        const totalUsers = data?.data?.total_users
+        setCount(
+          response.ok && data.success && Number.isFinite(totalUsers)
+            ? totalUsers
+            : null
+        )
       } catch (error) {
         console.error('Error fetching waitlist count:', error)
+        setCount(null)
       } finally {
         setLoading(false)
       }
@@ -30,23 +44,31 @@ export function WaitlistCounter() {
     return () => clearInterval(interval)
   }, [])
 
+  if (hideWhenEmpty && !loading && (!count || count < 1)) return null
+
   return (
-    <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 backdrop-blur-lg rounded-full border border-white/20">
-      <div className="flex -space-x-2">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div
-            key={i}
-            className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-600 border-2 border-white"
-          />
-        ))}
-      </div>
-      <span className="font-semibold">
+    <div className={`inline-flex max-w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 backdrop-blur-lg sm:gap-3 sm:px-6 sm:py-3 ${className}`}>
+      {count !== null && count > 0 && (
+        <div className="hidden -space-x-2 sm:flex" aria-hidden="true">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="h-8 w-8 rounded-full border-2 border-white bg-gradient-to-br from-yellow-400 to-orange-600"
+            />
+          ))}
+        </div>
+      )}
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold sm:text-base" aria-live="polite">
         {loading ? (
-          <span className="animate-pulse">...</span>
+          <span className="animate-pulse">Chargement...</span>
+        ) : count === null ? (
+          <span>Nombre indisponible</span>
+        ) : count === 0 ? (
+          <span>Aucune inscription pour le moment</span>
         ) : (
           <>
-            <Users className="w-4 h-4 inline mr-1" />
-            {count.toLocaleString()} en attente
+            <Users className="h-4 w-4 shrink-0" />
+            {count.toLocaleString('fr-FR')} {count === 1 ? 'personne inscrite' : 'personnes inscrites'}
           </>
         )}
       </span>

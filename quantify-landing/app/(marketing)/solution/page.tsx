@@ -5,8 +5,8 @@
 import { Metadata } from 'next'
 import { generateMetadata } from '@/lib/seo/metadata'
 import { 
-  Camera, BarChart3, Wallet, Share2, Wifi, Globe, 
-  Shield, Zap, CheckCircle, ArrowRight, Sparkles 
+  Camera, BarChart3, Wallet, Share2, Wifi,
+  CheckCircle, ArrowRight, Sparkles
 } from 'lucide-react'
 import Link from 'next/link'
 import { ViewportAnimation } from '@/components/optimizations/viewport-animation'
@@ -29,7 +29,6 @@ export default function SolutionPage() {
         "Historique illimité des scans",
         "Détection automatique des anomalies"
       ],
-      gradient: "from-blue-500 to-cyan-500",
       demoImage: "/demo-ocr.jpg"
     },
     {
@@ -42,7 +41,6 @@ export default function SolutionPage() {
         "Comparaisons période précédente",
         "Alertes personnalisées"
       ],
-      gradient: "from-purple-500 to-pink-500",
       demoImage: "/demo-dashboard.jpg"
     },
     {
@@ -55,7 +53,6 @@ export default function SolutionPage() {
         "Historique des transactions",
         "Reçus automatiques par email"
       ],
-      gradient: "from-green-500 to-emerald-500",
       demoImage: "/demo-payment.jpg"
     },
     {
@@ -68,7 +65,6 @@ export default function SolutionPage() {
         "Notifications en temps réel",
         "Révocation instantanée"
       ],
-      gradient: "from-orange-500 to-red-500",
       demoImage: "/demo-sharing.jpg"
     },
     {
@@ -81,21 +77,7 @@ export default function SolutionPage() {
         "Données locales sécurisées",
         "Zéro perte de données"
       ],
-      gradient: "from-yellow-500 to-orange-500",
       demoImage: "/demo-offline.jpg"
-    },
-    {
-      icon: Globe,
-      title: "Marketplace IoT",
-      description: "Achetez des équipements connectés auprès de commerçants locaux. Transformez votre maison en smart home.",
-      benefits: [
-        "Vendeurs locaux certifiés",
-        "Livraison sous 48h",
-        "Garantie produits",
-        "Installation assistée"
-      ],
-      gradient: "from-indigo-500 to-blue-500",
-      demoImage: "/demo-marketplace.jpg"
     }
   ]
 
@@ -170,16 +152,10 @@ export default function SolutionPage() {
                 href="/rejoindre"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-yellow-500/50 transition-all duration-300 hover:scale-105"
               >
-                Commencer gratuitement
+                Rejoindre la liste d’attente
                 <ArrowRight className="w-5 h-5" />
               </Link>
               
-              <Link
-                href="#features"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all duration-300"
-              >
-                Découvrir les fonctionnalités
-              </Link>
             </div>
           </div>
         </div>
@@ -195,8 +171,8 @@ export default function SolutionPage() {
                   index % 2 === 1 ? 'lg:flex-row-reverse' : ''
                 }`}>
                   <div className={index % 2 === 1 ? 'lg:order-2' : ''}>
-                    <div className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6`}>
-                      <feature.icon className="w-8 h-8 text-white" />
+                    <div className="w-16 h-16 flex items-center justify-center mb-6">
+                      <feature.icon className="w-8 h-8 text-[#FF6B35]" />
                     </div>
                     
                     <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
@@ -222,8 +198,8 @@ export default function SolutionPage() {
                       {/* Placeholder pour image de démo */}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center">
-                          <div className={`w-24 h-24 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
-                            <feature.icon className="w-12 h-12 text-white" />
+                          <div className="w-24 h-24 flex items-center justify-center mx-auto mb-4">
+                            <feature.icon className="w-12 h-12 text-[#FF6B35]" />
                           </div>
                           <p className="text-slate-500">Démo interactive</p>
                         </div>
@@ -253,7 +229,7 @@ export default function SolutionPage() {
             {technologies.map((tech, index) => (
               <ViewportAnimation key={index} delay={index * 0.1}>
                 <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all">
-                  <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                  <div className="text-5xl font-bold bg-gradient-to-r from-[#FF8C42] to-[#E04400] bg-clip-text text-transparent mb-4">
                     {tech.accuracy}
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-3">
@@ -318,19 +294,19 @@ export default function SolutionPage() {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 sm:py-32 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <section className="py-20 sm:py-32 bg-[#12263A] text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-6">
             Prêt à Transformer Votre Gestion Énergétique ?
           </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Rejoignez les 1,247 personnes déjà inscrites sur la liste d&apos;attente
+          <p className="text-xl text-slate-300 mb-8">
+            Rejoignez la liste d&apos;attente et soyez parmi les premiers à découvrir Quantify.
           </p>
           <Link
             href="/rejoindre"
-            className="inline-flex items-center gap-2 px-10 py-5 bg-white text-slate-900 font-bold text-lg rounded-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+            className="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-[#FF8C42] to-[#E04400] text-white font-bold text-lg rounded-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
           >
-            Rejoindre Gratuitement
+            Rejoindre la liste d’attente
             <ArrowRight className="w-6 h-6" />
           </Link>
         </div>

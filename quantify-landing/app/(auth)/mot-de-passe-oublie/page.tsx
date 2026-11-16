@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Zap, ArrowLeft, Mail, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Mail, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { QWordmark } from '@/components/brand/QMark'
 
 export default function MotDePasseOubliePage() {
   const [email, setEmail] = useState('')
@@ -39,10 +40,8 @@ export default function MotDePasseOubliePage() {
 
   return (
     <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-center">
-        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <Zap className="w-8 h-8 text-blue-600" />
-        </div>
+      <div className="bg-gradient-to-r from-[#FF8C42] to-[#E04400] p-8 text-center">
+        <QWordmark height={34} variant="white" className="mx-auto mb-4" />
         <h1 className="text-3xl font-bold text-white mb-2">
           Mot de passe oublié
         </h1>
@@ -105,7 +104,7 @@ export default function MotDePasseOubliePage() {
             <button
               type="submit"
               disabled={isLoading || !email}
-              className="w-full py-3.5 px-6 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all duration-200"
+              className="w-full py-3.5 px-6 rounded-xl font-semibold text-white bg-gradient-to-r from-[#FF8C42] to-[#E04400] hover:from-[#E04400] hover:to-[#C44D00] focus:ring-4 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all duration-200"
             >
               {isLoading ? (
                 <>

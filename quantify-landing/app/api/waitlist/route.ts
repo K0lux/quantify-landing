@@ -19,7 +19,7 @@ interface WaitlistCreateResponse extends APIResponse<WaitlistUser> {
   estimatedLaunchDate?: string
 }
 
-interface WaitlistStatsResponse extends APIResponse<WaitlistStats> {}
+type WaitlistStatsResponse = APIResponse<WaitlistStats>
 
 interface ReferralReward {
   type: 'position_boost' | 'credits' | 'premium_trial'
@@ -56,9 +56,8 @@ class WaitlistService {
       const referralCode = await this.generateUniqueReferralCode()
       const position = await this.calculateNextPosition()
 
-      let referralReward: ReferralReward | null = null
       if (validatedData.referredBy) {
-        referralReward = await this.processReferral(
+        await this.processReferral(
           validatedData.referredBy,
           validatedData.email
         )
@@ -355,7 +354,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
   try {
     const user = await getCurrentUser()
     const isAuthenticated = !!user

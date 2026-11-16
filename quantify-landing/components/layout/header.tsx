@@ -2,8 +2,8 @@
 
 import { useAuth } from '@/hooks/use-auth'
 import { useWaitlistModal } from '@/hooks/use-waitlist-modal'
+import { QWordmark } from '@/components/brand/QMark'
 import { LayoutDashboard, LogOut, Menu, X } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -13,7 +13,7 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { open } = useWaitlistModal()
-  const { isAuthenticated, isLoading: authLoading, signOut, user } = useAuth()
+  const { isAuthenticated, isLoading: authLoading, signOut } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,30 +23,31 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  useEffect(() => {
+    if (!isMobileMenuOpen) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMobileMenuOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [isMobileMenuOpen])
+
   const navigation = [
     { name: 'Accueil', href: '/' },
     { name: 'Solution', href: '/solution' },
-    { name: 'Marché', href: '/marche' },
-    { name: 'Équipe', href: '/equipe' },
     { name: 'Contact', href: '/contact' },
   ]
 
   return (
-    <header className={`fixed top-6 left-6 right-6 z-50 transition-all duration-300 rounded-3
-      xl:rounded-4xl ${
+    <header className={`fixed top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-4 lg:top-6 lg:left-6 lg:right-6 z-50 transition-all duration-300 rounded-2xl lg:rounded-3xl border ${
+      isMobileMenuOpen ? 'overflow-hidden' : ''
+    } ${
       isScrolled ? 'bg-slate-900/95 backdrop-blur-lg shadow-lg border border-slate-700/50' : 'bg-slate-900/60 backdrop-blur-md border border-white/10'
     }`}>
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-10">
+        <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
           <Link href="/" className="flex items-center gap-2 z-10">
-            <Image
-              src="/logo.svg"
-              alt="Quantify"
-              width={40}
-              height={55}
-              className="w-10 h-auto"
-            />
-            <span className="text-xl sm:text-2xl font-bold text-white">Quantify</span>
+            <QWordmark height={26} variant="white" />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8">
@@ -103,9 +104,12 @@ export function Header() {
             )}
 
             <button
+              type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden text-white p-2"
-              aria-label="Toggle menu"
+              className="lg:hidden flex h-11 w-11 items-center justify-center rounded-xl text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+              aria-label={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="site-mobile-nav"
             >
               {isMobileMenuOpen ? (
                 <X className="w-6 h-6" />
@@ -118,17 +122,17 @@ export function Header() {
       </div>
 
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-slate-900/98 backdrop-blur-xl border-t border-slate-800">
-          <nav className="px-4 py-6 space-y-4">
+        <div id="site-mobile-nav" className="max-h-[calc(100svh-5rem)] overflow-y-auto overscroll-contain border-t border-white/10 bg-slate-900/98 backdrop-blur-xl lg:hidden">
+          <nav className="px-4 py-3 sm:px-6 sm:py-4">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`block text-base font-medium py-2 transition-colors ${
+                className={`flex min-h-11 items-center rounded-xl px-3 text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 ${
                   pathname === item.href
-                    ? 'text-yellow-400'
-                    : 'text-slate-300 hover:text-white'
+                    ? 'bg-white/10 text-yellow-400'
+                    : 'text-slate-300 hover:bg-white/5 hover:text-white'
                 }`}
               >
                 {item.name}
@@ -139,13 +143,13 @@ export function Header() {
                 <Link
                   href="/dashboard"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block text-base font-medium py-2 text-yellow-400"
+                  className="flex min-h-11 items-center rounded-xl px-3 text-base font-medium text-yellow-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
                 >
                   Dashboard
                 </Link>
                 <button
                   onClick={() => { signOut(); setIsMobileMenuOpen(false) }}
-                  className="w-full text-left text-base font-medium py-2 text-slate-300 hover:text-white"
+                  className="w-full min-h-11 rounded-xl px-3 text-left text-base font-medium text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
                 >
                   Se déconnecter
                 </button>
@@ -155,7 +159,7 @@ export function Header() {
                 <Link
                   href="/connexion"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block text-base font-medium py-2 text-slate-300 hover:text-white"
+                  className="flex min-h-11 items-center rounded-xl px-3 text-base font-medium text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
                 >
                   Connexion
                 </Link>
@@ -164,7 +168,7 @@ export function Header() {
                     open()
                     setIsMobileMenuOpen(false)
                   }}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-lg font-semibold mt-4"
+                  className="mt-3 min-h-12 w-full rounded-xl bg-gradient-to-r from-yellow-500 to-orange-600 px-6 py-3 font-semibold text-slate-950 shadow-sm transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
                 >
                   Rejoindre la liste d&apos;attente
                 </button>

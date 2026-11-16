@@ -3,7 +3,7 @@
 // ============================================
 'use client'
 
-import { Share2, Facebook, Twitter, Linkedin, Link as LinkIcon, Check } from 'lucide-react'
+import { Facebook, Twitter, Linkedin, Link as LinkIcon, Check } from 'lucide-react'
 import { useState } from 'react'
 
 interface SocialShareProps {

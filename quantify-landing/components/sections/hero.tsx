@@ -3,8 +3,9 @@
 // ============================================
 'use client'
 
-import { ArrowRight, Play, Sparkles } from 'lucide-react'
+import { ArrowRight, Sparkles } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { WaitlistCounter } from '@/components/waitlist/waitlist-counter'
 
 interface HeroSectionProps {
   onJoinWaitlist: () => void
@@ -16,10 +17,8 @@ const MOOD_CYCLE: MascotMood[] = ['happy', 'scan', 'think', 'alert']
 const MOOD_DURATION = 5000
 
 export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
-  const [userCount, setUserCount] = useState(0)
   const [isMounted, setIsMounted] = useState(false)
   const [mascotMood, setMascotMood] = useState<MascotMood>('happy')
-  const [targetCount, setTargetCount] = useState(0)
   const [eyeOffset, setEyeOffset] = useState({ x: 0, y: 0 })
   const [autoCycle, setAutoCycle] = useState(true)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -41,40 +40,14 @@ export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
       id: i,
       r: 2 + Math.random() * 2,
       delay: i * 0.4,
-      color: i % 2 === 0 ? '#fbbf24' : '#6366f1',
+      color: i % 2 === 0 ? '#fbbf24' : '#FF6B35',
     })),
     []
   )
 
   useEffect(() => {
     setIsMounted(true)
-    fetch('/api/waitlist')
-      .then(res => res.json())
-      .then(result => {
-        if (result.success && result.data?.total_users) {
-          setTargetCount(result.data.total_users)
-        }
-      })
-      .catch(() => {})
   }, [])
-
-  useEffect(() => {
-    if (targetCount === 0) return
-    const duration = 2000
-    const steps = 60
-    const increment = targetCount / steps
-    let current = 0
-    const timer = setInterval(() => {
-      current += increment
-      if (current >= targetCount) {
-        setUserCount(targetCount)
-        clearInterval(timer)
-      } else {
-        setUserCount(Math.floor(current))
-      }
-    }, duration / steps)
-    return () => clearInterval(timer)
-  }, [targetCount])
 
   // Auto mood cycle
   useEffect(() => {
@@ -122,7 +95,7 @@ export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
   const pupilCy2 = 66 + eyeOffset.y
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 overflow-hidden flex items-center">
+    <section className="relative min-h-screen min-h-[100svh] bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 overflow-hidden flex items-center">
       {/* Animated star background */}
       <div className="absolute inset-0 overflow-hidden">
         {isMounted && stars.map((star) => (
@@ -160,49 +133,50 @@ export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
 
       {/* Drifting ambient glow blobs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl" style={{ animation: 'hero-glow-drift 12s ease-in-out infinite' }} />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl" style={{ animation: 'hero-glow-drift 15s ease-in-out infinite reverse' }} />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl" style={{ animation: 'hero-glow-drift 15s ease-in-out infinite reverse' }} />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32 w-full">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="relative max-w-7xl mx-auto w-full px-4 pt-28 pb-10 sm:px-6 sm:py-28 lg:px-8 lg:py-32">
+        <div className="grid items-center gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Left content */}
-          <div className="space-y-8 text-white text-center lg:text-left">
-            <div className="hero-fade-up inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-yellow-300 text-sm font-medium backdrop-blur-sm hero-badge-pulse">
+          <div className="space-y-5 text-center text-white sm:space-y-8 lg:text-left">
+            <div className="hero-fade-up mx-auto inline-flex max-w-full items-center justify-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/20 px-3 py-2 text-xs font-medium text-yellow-300 backdrop-blur-sm hero-badge-pulse sm:px-4 sm:text-sm lg:mx-0">
               <Sparkles className="w-4 h-4" />
               <span>Gestion énergétique multi-compteurs, du foyer à l&apos;immeuble</span>
             </div>
 
-            <h1 className="hero-fade-up-1 text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
-              <span className="block mb-2">L&apos;appli pour</span>
+            <h1 className="hero-fade-up-1 text-3xl font-bold leading-tight sm:text-5xl lg:text-6xl xl:text-7xl">
+              <span className="mb-1 block sm:mb-2">L&apos;appli pour</span>
               <span className="block bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-600 bg-[length:200%_auto] bg-clip-text text-transparent hero-shimmer-text">
                 mieux gérer votre énergie
               </span>
             </h1>
 
-            <p className="hero-fade-up-2 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto lg:mx-0">
+            <p className="hero-fade-up-2 mx-auto max-w-2xl text-base leading-relaxed text-slate-300 sm:text-xl lg:mx-0">
               Scannez votre compteur en un clic, suivez votre consommation en temps réel, payez facilement via mobile money (Flooz et YasTogo, etc.). Sans matériel.
             </p>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-4 py-6 max-w-md mx-auto lg:mx-0">
+            <div className="mx-auto grid max-w-md grid-cols-3 gap-2 py-3 sm:gap-4 sm:py-6 lg:mx-0">
               <div className="stat-pop-1 text-center lg:text-left">
-                <div className="text-2xl sm:text-3xl font-bold text-yellow-400">100%</div>
-                <p className="text-xs sm:text-sm text-slate-400 mt-1">Mobile, sans matériel</p>
+                <div className="text-xl font-bold text-yellow-400 sm:text-3xl">100%</div>
+                <p className="mt-1 text-[10px] leading-tight text-slate-400 sm:text-sm">Mobile, sans matériel</p>
               </div>
               <div className="stat-pop-2 text-center lg:text-left">
-                <div className="text-2xl sm:text-3xl font-bold text-green-400">3 clics</div>
-                <p className="text-xs sm:text-sm text-slate-400 mt-1">Scan → Suivi → Paiement</p>
+                <div className="text-xl font-bold text-green-400 sm:text-3xl">3 clics</div>
+                <p className="mt-1 text-[10px] leading-tight text-slate-400 sm:text-sm">Scan → Suivi → Paiement</p>
               </div>
               <div className="stat-pop-3 text-center lg:text-left">
-                <div className="text-2xl sm:text-3xl font-bold text-blue-400">3.6M</div>
-                <p className="text-xs sm:text-sm text-slate-400 mt-1">Foyers au Togo</p>
+                <div className="text-xl font-bold text-blue-400 sm:text-3xl">3.6M</div>
+                <p className="mt-1 text-[10px] leading-tight text-slate-400 sm:text-sm">Foyers au Togo</p>
               </div>
             </div>
 
             {/* CTA */}
-            <div className="hero-fade-up-4 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <div className="hero-fade-up-4 flex flex-col justify-center gap-3 sm:flex-row sm:gap-4 lg:justify-start">
               <button
+                type="button"
                 onClick={onJoinWaitlist}
-                className="group relative px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl font-semibold text-base sm:text-lg shadow-lg hover:shadow-yellow-500/50 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 overflow-hidden"
+                className="group relative flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-yellow-500 to-orange-600 px-5 py-4 text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-yellow-500/50 sm:w-auto sm:px-8 sm:text-lg sm:hover:scale-105"
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 Rejoindre la liste d&apos;attente
@@ -211,25 +185,14 @@ export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
             </div>
 
             {/* Social Proof */}
-            <div className="hero-fade-up-5 flex items-center gap-3 pt-4 justify-center lg:justify-start">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div
-                    key={i}
-                    className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 border-2 border-slate-900 flex items-center justify-center text-white text-xs font-bold transition-transform hover:scale-110 hover:z-10"
-                  >
-                    {i}
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-slate-300">
-                <span className="font-bold text-yellow-400">{userCount.toLocaleString()}</span> personnes en attente
-              </p>
-            </div>
+            <WaitlistCounter
+              hideWhenEmpty
+              className="hero-fade-up-5 pt-2 sm:pt-4 lg:justify-start"
+            />
           </div>
 
           {/* Right content - Animated Wati Mascot */}
-          <div className={`relative flex flex-col items-center gap-6 ${isMounted ? 'wati-entrance' : 'opacity-0'}`}>
+          <div className={`relative flex flex-col items-center gap-3 sm:gap-6 ${isMounted ? 'wati-entrance' : 'opacity-0'}`}>
             <div className="relative wati-float">
               {/* Pulsing glow behind mascot */}
               <div className="absolute inset-0 bg-yellow-500/10 blur-3xl rounded-full wati-glow" />
@@ -258,7 +221,7 @@ export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
                 width="280"
                 height="360"
                 viewBox="0 0 200 260"
-                className="relative drop-shadow-2xl"
+                className="relative h-auto w-[176px] drop-shadow-2xl sm:w-[240px] lg:w-[280px]"
               >
                 <defs>
                   <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -361,8 +324,8 @@ export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
                   <>
                     <ellipse cx={88 + eyeOffset.x} cy={66 + eyeOffset.y} rx="7" ry="7" fill="#1e293b" />
                     <ellipse cx={114 + eyeOffset.x} cy={66 + eyeOffset.y} rx="7" ry="7" fill="#1e293b" />
-                    <ellipse cx={88 + eyeOffset.x} cy={66 + eyeOffset.y} rx="4" ry="4" fill="#6366f1" />
-                    <ellipse cx={114 + eyeOffset.x} cy={66 + eyeOffset.y} rx="4" ry="4" fill="#6366f1" />
+                    <ellipse cx={88 + eyeOffset.x} cy={66 + eyeOffset.y} rx="4" ry="4" fill="#FF6B35" />
+                    <ellipse cx={114 + eyeOffset.x} cy={66 + eyeOffset.y} rx="4" ry="4" fill="#FF6B35" />
                     <ellipse cx={88 + eyeOffset.x} cy={66 + eyeOffset.y} rx="2" ry="2" fill="white" />
                     <ellipse cx={114 + eyeOffset.x} cy={66 + eyeOffset.y} rx="2" ry="2" fill="white" />
                     <line x1="76" y1="66" x2="100" y2="66" stroke="#fbbf24" strokeWidth="0.8" className="wati-scan-line" />
@@ -372,8 +335,8 @@ export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
                   <>
                     <ellipse cx={pupilCx1} cy={pupilCy1} rx="7" ry="7" fill="#1e293b" />
                     <ellipse cx={pupilCx2} cy={pupilCy2} rx="7" ry="7" fill="#1e293b" />
-                    <ellipse cx={pupilCx1} cy={pupilCy1} rx="4" ry="4" fill="#6366f1" />
-                    <ellipse cx={pupilCx2} cy={pupilCy2} rx="4" ry="4" fill="#6366f1" />
+                    <ellipse cx={pupilCx1} cy={pupilCy1} rx="4" ry="4" fill="#FF6B35" />
+                    <ellipse cx={pupilCx2} cy={pupilCy2} rx="4" ry="4" fill="#FF6B35" />
                     <ellipse cx={pupilCx1 + 1.5} cy={pupilCy1 - 2} rx="2" ry="2" fill="rgba(255,255,255,0.9)" />
                     <ellipse cx={pupilCx2 + 1.5} cy={pupilCy2 - 2} rx="2" ry="2" fill="rgba(255,255,255,0.9)" />
                   </>
@@ -422,12 +385,12 @@ export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
                   <>
                     <circle cx="55" cy="50" r="3" fill="#fbbf24" className="wati-spark" style={{ animationDelay: '0s' }} />
                     <circle cx="145" cy="45" r="4" fill="#fbbf24" className="wati-spark" style={{ animationDelay: '0.5s' }} />
-                    <circle cx="60" cy="80" r="2" fill="#6366f1" className="wati-spark" style={{ animationDelay: '1s' }} />
-                    <circle cx="140" cy="75" r="3" fill="#6366f1" className="wati-spark" style={{ animationDelay: '0.3s' }} />
+                    <circle cx="60" cy="80" r="2" fill="#FF6B35" className="wati-spark" style={{ animationDelay: '1s' }} />
+                    <circle cx="140" cy="75" r="3" fill="#FF6B35" className="wati-spark" style={{ animationDelay: '0.3s' }} />
                     <path d="M50 55 L55 48 L60 55" fill="none" stroke="#fbbf24" strokeWidth="1.5" className="wati-spark" style={{ animationDelay: '0.7s' }} />
                     <path d="M140 50 L145 42 L150 50" fill="none" stroke="#fbbf24" strokeWidth="1.5" className="wati-spark" style={{ animationDelay: '1.2s' }} />
                     <circle cx="48" cy="110" r="2.5" fill="#fbbf24" className="wati-spark" style={{ animationDelay: '0.2s' }} />
-                    <circle cx="152" cy="100" r="2" fill="#6366f1" className="wati-spark" style={{ animationDelay: '0.8s' }} />
+                    <circle cx="152" cy="100" r="2" fill="#FF6B35" className="wati-spark" style={{ animationDelay: '0.8s' }} />
                   </>
                 )}
 
@@ -445,7 +408,7 @@ export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
                 {isMounted && (
                   <>
                     <circle cx="50" cy="130" r="1.5" fill="#fbbf24" className="wati-spark" style={{ animationDelay: '0s', animationDuration: '3s' }} />
-                    <circle cx="150" cy="90" r="1.5" fill="#6366f1" className="wati-spark" style={{ animationDelay: '1s', animationDuration: '3.5s' }} />
+                    <circle cx="150" cy="90" r="1.5" fill="#FF6B35" className="wati-spark" style={{ animationDelay: '1s', animationDuration: '3.5s' }} />
                     <circle cx="155" cy="150" r="1" fill="#fbbf24" className="wati-spark" style={{ animationDelay: '2s', animationDuration: '4s' }} />
                   </>
                 )}
@@ -453,17 +416,17 @@ export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
             </div>
 
             {/* Mood selector */}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
               {([
                 { mood: 'happy' as MascotMood, label: '😊 Accueil', color: 'bg-green-500/20 border-green-500/40 text-green-300' },
                 { mood: 'scan' as MascotMood, label: '🔍 Scan', color: 'bg-sky-500/20 border-sky-500/40 text-sky-300' },
-                { mood: 'think' as MascotMood, label: '🤔 IA', color: 'bg-purple-500/20 border-purple-500/40 text-purple-300' },
+                { mood: 'think' as MascotMood, label: '🤔 IA', color: 'bg-orange-500/20 border-orange-500/40 text-orange-300' },
                 { mood: 'alert' as MascotMood, label: '⚡ Alerte', color: 'bg-yellow-500/20 border-yellow-500/40 text-yellow-300' },
               ]).map(m => (
                 <button
                   key={m.mood}
                   onClick={() => handleManualMood(m.mood)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-300 ${
+                  className={`min-h-9 rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition-all duration-300 sm:px-3 sm:text-xs ${
                     mascotMood === m.mood
                       ? `${m.color} scale-110`
                       : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
@@ -476,8 +439,7 @@ export function HeroSection({ onJoinWaitlist }: HeroSectionProps) {
 
             {/* Mascot name tag */}
             <div className="text-center">
-              <div className="text-xl font-extrabold text-yellow-400">⚡ Wati</div>
-              <div className="text-sm text-slate-400 mt-1">&ldquo;L&apos;éclair qui veille sur ton énergie&rdquo;</div>
+              <div className="text-xl font-extrabold text-yellow-400">Wati</div>
             </div>
           </div>
         </div>

@@ -1,19 +1,21 @@
 'use client'
 
+import { useState } from 'react'
 import { FadeIn } from '@/components/animations/fade-in'
 import {
-  Building, GraduationCap, Home, ClipboardList, Users,
-  Factory, Hotel, Store, Wrench, Zap
+  ArrowLeft, ArrowRight, Building, GraduationCap, Home, ClipboardList, Users,
+  Factory, Hotel, Zap
 } from 'lucide-react'
 
 export function UseCasesSection() {
+  const [activeCaseIndex, setActiveCaseIndex] = useState(0)
   const useCases = [
     {
       icon: Building,
-      title: 'Immeuble locatif multi-compteurs',
-      context: 'Compteur mère + compteurs liés par appartement, charges communes difficiles.',
-      solution: 'Quantify calcule automatiquement l\'écart et répartit la facture.',
-      benefit: 'Moins de litiges, factures compréhensibles.',
+      title: 'Immeuble : un compteur principal, plusieurs logements',
+      context: 'Un compteur principal alimente l’immeuble ; un sous-compteur mesure chaque appartement.',
+      solution: 'Quantify compare les relevés et calcule la part de chaque logement, charges communes incluses.',
+      benefit: 'Chaque occupant comprend sa facture et peut vérifier son historique.',
     },
     {
       icon: Users,
@@ -25,8 +27,8 @@ export function UseCasesSection() {
     {
       icon: GraduationCap,
       title: 'Résidence étudiante — 30 compteurs',
-      context: '1 mère, 30 chambres, relevés manuels, erreurs fréquentes.',
-      solution: 'Scans agrégés, facturation de masse, alertes par chambre.',
+      context: 'Un compteur principal alimente 30 chambres ; les relevés manuels entraînent des erreurs.',
+      solution: 'Les relevés sont regroupés, les factures calculées par chambre et les écarts signalés.',
       benefit: 'Facturation en minutes, vue globale.',
     },
     {
@@ -58,20 +60,6 @@ export function UseCasesSection() {
       benefit: 'Transparence client, gestion simplifiée.',
     },
     {
-      icon: Store,
-      title: 'Commerçant sur Quantify Market',
-      context: 'Besoin de visibilité locale sans site web.',
-      solution: 'Vitrine reliée au wallet QC, leads multi-canal.',
-      benefit: 'Nouveaux clients, revenus mesurables.',
-    },
-    {
-      icon: Wrench,
-      title: 'Prestataire de services',
-      context: 'Électricien indépendant, pas de plateforme de réservation.',
-      solution: 'Profil vérifié, devis structuré, missions planifiées.',
-      benefit: 'Clients qualifiés, Trust Score croissant.',
-    },
-    {
       icon: Zap,
       title: 'Collectivité locale',
       context: 'Suivi énergétique des bâtiments publics.',
@@ -79,22 +67,73 @@ export function UseCasesSection() {
       benefit: 'Maîtrise budgétaire et reporting.',
     },
   ]
+  const activeCase = useCases[activeCaseIndex]
 
   return (
-    <section id="cas-usage" className="py-20 sm:py-28 bg-white">
+    <section id="cas-usage" className="py-12 sm:py-20 lg:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn>
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <div className="inline-flex items-center gap-2 rounded-full bg-blue-900 px-4 py-2 text-sm font-bold text-white mb-6">
-              Cas d&apos;usage concrets
+          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-14">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-900 px-4 py-2 text-sm font-bold text-white sm:mb-6">
+              Cas concrets déjà modélisés
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-4">
-              Des scénarios <span className="text-orange-500">réels</span>, déjà modélisés
+            <h2 className="mb-3 text-2xl font-extrabold leading-tight text-slate-900 sm:mb-4 sm:text-4xl lg:text-5xl">
+              Un compteur principal, plusieurs logements
             </h2>
+            <p className="text-base sm:text-lg text-slate-700">
+              Pour un immeuble, une colocation ou une résidence : suivez les compteurs et comprenez la part de chacun.
+            </p>
           </div>
         </FadeIn>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* One focused, complete case at a time keeps the mobile view glanceable. */}
+        <div className="lg:hidden">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => setActiveCaseIndex((index) => (index - 1 + useCases.length) % useCases.length)}
+              aria-label="Afficher le cas précédent"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 transition hover:border-blue-900 hover:text-blue-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="flex items-center gap-2" aria-live="polite">
+              <span className="text-sm font-bold text-slate-900">{activeCaseIndex + 1}</span>
+              <span className="text-sm text-slate-500">/ {useCases.length} cas</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setActiveCaseIndex((index) => (index + 1) % useCases.length)}
+              aria-label="Afficher le cas suivant"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-900 text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+            >
+              <ArrowRight className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div
+            className="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm sm:p-5"
+            role="group"
+            aria-roledescription="carrousel"
+            aria-label="Cas d’usage énergétiques"
+            aria-live="polite"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-900 text-white">
+                <activeCase.icon className="h-5 w-5" />
+              </div>
+              <h3 className="text-sm font-bold leading-snug text-slate-900 sm:text-base">{activeCase.title}</h3>
+            </div>
+            <div className="mt-4 space-y-3 text-[13px] leading-relaxed text-slate-700 sm:text-sm">
+              <p><span className="font-semibold text-slate-900">Contexte :</span> {activeCase.context}</p>
+              <p><span className="font-semibold text-slate-900">Solution :</span> {activeCase.solution}</p>
+              <p className="font-semibold text-orange-600">{activeCase.benefit}</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div className="hidden gap-4 lg:grid lg:grid-cols-3">
           {useCases.map((uc, index) => (
             <FadeIn key={uc.title} delay={index * 0.06}>
               <div className="h-full rounded-2xl border border-slate-200 bg-slate-50 p-5 hover-lift transition-all duration-300">

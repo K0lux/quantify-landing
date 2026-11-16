@@ -37,30 +37,32 @@ export function NewsletterForm() {
       setTimeout(() => {
         setSubmitted(false)
       }, 3000)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue. Veuillez réessayer.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-3">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 lg:flex-row">
       <div className="flex-1 relative">
         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
         <input
           type="email"
           required
+          aria-label="Votre adresse e-mail"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="votre@email.com"
-          className="w-full pl-12 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          className="min-h-12 w-full rounded-lg border border-slate-600 bg-slate-700 py-3 pl-12 pr-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-yellow-500"
         />
+        {error && <p role="alert" className="mt-2 text-sm text-red-300">{error}</p>}
       </div>
       <button
         type="submit"
         disabled={loading || submitted}
-        className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-600 px-6 py-3 font-semibold text-white transition-all hover:shadow-lg disabled:opacity-50 lg:w-auto"
       >
         {loading ? (
           <Loader2 className="w-5 h-5 animate-spin" />

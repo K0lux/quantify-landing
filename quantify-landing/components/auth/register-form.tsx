@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Loader2, AlertCircle, Eye, EyeOff, Mail, Lock, User, CheckCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -13,7 +12,6 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({ className, prefilledEmail }: RegisterFormProps) {
-  const router = useRouter()
   const [supabase] = useState(() => createClient())
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState(prefilledEmail || '')
@@ -23,7 +21,6 @@ export function RegisterForm({ className, prefilledEmail }: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
   const passwordChecks = {
     length: password.length >= 8,
@@ -89,7 +86,7 @@ export function RegisterForm({ className, prefilledEmail }: RegisterFormProps) {
     } finally {
       setIsLoading(false)
     }
-  }, [email, password, confirmPassword, fullName, isPasswordValid, router, supabase])
+  }, [email, password, confirmPassword, fullName, isPasswordValid, supabase])
 
   if (success) {
     return (
@@ -98,16 +95,9 @@ export function RegisterForm({ className, prefilledEmail }: RegisterFormProps) {
           <CheckCircle className="w-8 h-8 text-white" />
         </div>
         <h2 className="text-2xl font-bold text-slate-900 mb-2">Compte créé !</h2>
-        {needsConfirmation ? (
-          <p className="text-slate-600">
-            Un email de confirmation a été envoyé à <strong>{email}</strong>.
-            Vérifiez votre boîte de réception pour activer votre compte.
-          </p>
-        ) : (
-          <p className="text-slate-600">
-            Redirection vers votre tableau de bord...
-          </p>
-        )}
+        <p className="text-slate-600">
+          Redirection vers votre tableau de bord...
+        </p>
       </div>
     )
   }

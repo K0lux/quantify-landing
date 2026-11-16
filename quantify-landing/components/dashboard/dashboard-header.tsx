@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { Zap, Bell, LogOut } from 'lucide-react'
+import { Bell, LogOut } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import { QWordmark } from '@/components/brand/QMark'
 
 export function DashboardHeader() {
   const { signOut, user } = useAuth()
@@ -12,10 +13,7 @@ export function DashboardHeader() {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-600 rounded-xl flex items-center justify-center">
-              <Zap className="w-6 h-6 text-slate-900" />
-            </div>
-            <span className="text-xl font-bold text-slate-900">Quantify</span>
+            <QWordmark height={27} variant="dark" />
           </Link>
 
           <div className="flex items-center gap-4">
@@ -26,7 +24,7 @@ export function DashboardHeader() {
 
             {user && (
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div className="w-9 h-9 bg-gradient-to-br from-[#FF8C42] to-[#E04400] rounded-full flex items-center justify-center text-white font-bold text-sm">
                   {(user.email?.charAt(0) || '?').toUpperCase()}
                 </div>
                 <button

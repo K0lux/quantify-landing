@@ -103,7 +103,7 @@ export default async function DashboardPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 sm:p-12 text-white">
+      <div className="bg-gradient-to-r from-[#FF8C42] to-[#E04400] rounded-3xl p-8 sm:p-12 text-white">
         <h1 className="text-3xl sm:text-4xl font-bold mb-2">
           Bienvenue, {waitlistData.full_name?.split(' ')[0]} !
         </h1>
@@ -135,10 +135,10 @@ export default async function DashboardPage() {
         {/* Parrainages */}
         <div className="bg-white rounded-2xl p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#FF8C42] to-[#E04400] rounded-xl flex items-center justify-center">
               <Users className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xs font-semibold text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
+            <span className="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
               Parrainages
             </span>
           </div>
@@ -314,7 +314,7 @@ export default async function DashboardPage() {
                 className="flex items-center justify-between p-4 bg-slate-50 rounded-xl"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#FF8C42] to-[#E04400] rounded-full flex items-center justify-center text-white font-bold">
                     {referral.full_name?.charAt(0) || '?'}
                   </div>
                   <div>
@@ -345,7 +345,7 @@ export default async function DashboardPage() {
       )}
 
       {/* Help Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-3xl p-8">
+      <div className="bg-gradient-to-r from-orange-50 to-white border border-blue-200 rounded-3xl p-8">
         <h3 className="text-xl font-bold text-slate-900 mb-4">
           Conseils pour monter dans la liste
         </h3>

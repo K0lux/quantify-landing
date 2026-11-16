@@ -1,48 +1,18 @@
 // ============================================
 // components/layout/footer.tsx
 // ============================================
-import Link from 'next/link'
-import Image from 'next/image'
-import { Mail, Phone, Linkedin, Twitter, Facebook, Heart } from 'lucide-react'
+import { Mail, Phone, Linkedin, Youtube } from 'lucide-react'
+import { QWordmark } from '@/components/brand/QMark'
 import { NewsletterForm } from '@/components/newsletter/newsletter-form'
 
 export function Footer() {
-  const footerLinks = {
-    product: [
-      { name: 'Fonctionnalités', href: '/solution' },
-      { name: 'Tarifs', href: '/#pricing' },
-      { name: 'Télécharger', href: '#' },
-      { name: 'Démo', href: '#' },
-    ],
-    company: [
-      { name: 'Équipe', href: '/equipe' },
-      { name: 'Notre vision', href: '/marche' },
-      { name: 'Investisseurs', href: '/#investisseurs' },
-      { name: 'Carrières', href: '/contact' },
-    ],
-    resources: [
-      { name: 'Blog', href: '#' },
-      { name: 'Documentation', href: '#' },
-      { name: 'FAQ', href: '#' },
-      { name: 'Support', href: '/contact' },
-    ],
-  }
-
   return (
     <footer className="bg-slate-900 text-slate-300 border-t border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-4 gap-12 mb-12">
-          {/* Company */}
+      <div className="max-w-7xl mx-auto px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
+        <div className="mb-10 grid gap-8 md:mb-12 md:grid-cols-2 md:gap-10">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Image
-                src="/logo.svg"
-                alt="Quantify"
-                width={40}
-                height={55}
-                className="w-10 h-auto"
-              />
-              <span className="text-xl font-bold text-white">Quantify</span>
+            <div className="mb-5">
+              <QWordmark height={32} variant="white" />
             </div>
             <p className="text-sm text-slate-400 mb-4">
               L&apos;application qui révolutionne la gestion énergétique en Afrique et au-delà.
@@ -51,89 +21,32 @@ export function Footer() {
               <a href="#" className="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center justify-center transition-colors">
                 <Linkedin className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center justify-center transition-colors">
-                <Twitter className="w-5 h-5" />
+              <a href="#" aria-label="X" className="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center justify-center transition-colors">
+                <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" aria-hidden="true">
+                  <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.847h-7.406l-5.8-7.584-6.636 7.584H.474l8.6-9.83L0 1.153h7.594l5.243 6.932zM17.61 20.644h2.039L6.486 3.356H4.298z" />
+                </svg>
               </a>
               <a href="#" className="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center justify-center transition-colors">
-                <Facebook className="w-5 h-5" />
+                <Youtube className="w-5 h-5" />
               </a>
             </div>
           </div>
 
-          {/* Product */}
-          <div>
-            <h3 className="font-bold text-white mb-4">Produit</h3>
-            <ul className="space-y-3 text-sm">
-              {footerLinks.product.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="hover:text-white transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div>
-            <h3 className="font-bold text-white mb-4">Entreprise</h3>
-            <ul className="space-y-3 text-sm">
-              {footerLinks.company.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="hover:text-white transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h3 className="font-bold text-white mb-4">Ressources</h3>
-            <ul className="space-y-3 text-sm">
-              {footerLinks.resources.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="hover:text-white transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Newsletter */}
-        <div className="bg-slate-800 rounded-2xl p-8 mb-12">
-          <div className="grid md:grid-cols-2 gap-6 items-center">
-            <div>
+          <div className="rounded-2xl bg-slate-800 p-5 sm:p-8">
+            <div className="mb-6">
               <h3 className="text-xl font-bold text-white mb-2">Restez informé</h3>
-              <p className="text-slate-400 text-sm">Recevez les dernières actualités et mises à jour</p>
+              <p className="text-slate-400 text-sm">
+                Recevez des conseils et des actualités sur la gestion énergétique.
+              </p>
             </div>
             <NewsletterForm />
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-slate-800 text-sm">
+        <div className="border-t border-slate-800 pt-8 text-center text-sm text-slate-500 space-y-2">
           <p className="text-slate-500">
-            © 2025 Quantify. Tous droits réservés. Made with <Heart className="w-4 h-4 inline text-red-500" /> in Togo
+            © 2026 Quantify. Tous droits réservés.
           </p>
-          <div className="flex gap-6">
-            <Link href="/confidentialite" className="hover:text-white transition-colors">
-              Confidentialité
-            </Link>
-            <Link href="/conditions" className="hover:text-white transition-colors">
-              Conditions
-            </Link>
-            <Link href="/cookies" className="hover:text-white transition-colors">
-              Cookies
-            </Link>
-          </div>
-        </div>
-
-        {/* Contact Info */}
-        <div className="mt-8 text-center text-sm text-slate-500 space-y-1">
           <p className="flex items-center justify-center gap-2">
             <Mail className="w-4 h-4" />
             kassaluc9770@gmail.com

@@ -4,7 +4,7 @@
 import { Metadata } from 'next'
 import { generateMetadata } from '@/lib/seo/metadata'
 import { 
-  Mail, Phone, MapPin, Clock, Send,
+  Mail, Phone, MapPin, Clock,
   Briefcase, Users, HelpCircle, MessageSquare
 } from 'lucide-react'
 import { ContactForm } from '@/components/forms/contact-form'
@@ -23,28 +23,24 @@ export default function ContactPage() {
       label: "Email",
       value: "kassaluc9770@gmail.com",
       href: "mailto:kassaluc9770@gmail.com",
-      color: "from-blue-500 to-cyan-500"
     },
     {
       icon: Phone,
       label: "Téléphone",
       value: "+228 93 13 18 74",
       href: "tel:+22893131874",
-      color: "from-green-500 to-emerald-500"
     },
     {
       icon: MapPin,
       label: "Localisation",
       value: "Lomé, Togo",
       href: null,
-      color: "from-orange-500 to-red-500"
     },
     {
       icon: Clock,
       label: "Disponibilité",
       value: "Lun-Ven: 9h-18h GMT",
       href: null,
-      color: "from-purple-500 to-pink-500"
     }
   ]
 
@@ -52,26 +48,22 @@ export default function ContactPage() {
     {
       icon: Briefcase,
       title: "Investisseurs",
-      description: "Vous souhaitez investir dans Quantify et participer à la révolution énergétique",
-      gradient: "from-blue-500 to-cyan-500"
+      description: "Vous souhaitez investir dans Quantify et participer à la révolution énergétique"
     },
     {
       icon: Users,
       title: "Partenariats",
-      description: "Utilities, commerçants IoT, ou autres acteurs de l'écosystème énergétique",
-      gradient: "from-purple-500 to-pink-500"
+      description: "Fournisseurs d'énergie, techniciens et autres acteurs du secteur énergétique"
     },
     {
       icon: HelpCircle,
       title: "Support",
-      description: "Questions techniques, aide à l'utilisation, ou feedback sur l'application",
-      gradient: "from-green-500 to-emerald-500"
+      description: "Questions techniques, aide à l'utilisation, ou feedback sur l'application"
     },
     {
       icon: MessageSquare,
       title: "Général",
-      description: "Toute autre question ou opportunité de collaboration",
-      gradient: "from-orange-500 to-red-500"
+      description: "Toute autre question ou opportunité de collaboration"
     }
   ]
 
@@ -101,8 +93,8 @@ export default function ContactPage() {
             {contactInfo.map((info, index) => (
               <ViewportAnimation key={index} delay={index * 0.1}>
                 <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all text-center">
-                  <div className={`w-12 h-12 bg-gradient-to-br ${info.color} rounded-xl flex items-center justify-center mx-auto mb-4`}>
-                    <info.icon className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                    <info.icon className="w-6 h-6 text-[#FF6B35]" />
                   </div>
                   <p className="text-sm text-slate-600 mb-2">{info.label}</p>
                   {info.href ? (
@@ -135,8 +127,8 @@ export default function ContactPage() {
             {contactTypes.map((type, index) => (
               <ViewportAnimation key={index} delay={index * 0.1}>
                 <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all">
-                  <div className={`w-12 h-12 bg-gradient-to-br ${type.gradient} rounded-xl flex items-center justify-center mb-4`}>
-                    <type.icon className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 flex items-center justify-center mb-4">
+                    <type.icon className="w-6 h-6 text-[#FF6B35]" />
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-3">
                     {type.title}
@@ -170,8 +162,8 @@ export default function ContactPage() {
       {/* Map Placeholder */}
       <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-br from-blue-100 to-purple-100 rounded-3xl p-12 text-center">
-            <MapPin className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+          <div className="bg-slate-50 border border-slate-200 rounded-3xl p-12 text-center">
+            <MapPin className="w-16 h-16 text-[#FF6B35] mx-auto mb-4" />
             <h3 className="text-2xl font-bold text-slate-900 mb-2">
               Lomé, Togo
             </h3>

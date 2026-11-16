@@ -50,7 +50,7 @@ export function ContactForm() {
       })
 
       setTimeout(() => setSubmitted(false), 3000)
-    } catch (error) {
+    } catch {
       showToast('Erreur lors de l\'envoi du message', 'error')
     } finally {
       setLoading(false)
@@ -60,8 +60,8 @@ export function ContactForm() {
   if (submitted) {
     return (
       <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-12 text-center">
-        <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle className="w-10 h-10 text-white" />
+        <div className="w-20 h-20 flex items-center justify-center mx-auto mb-6">
+          <CheckCircle className="w-10 h-10 text-green-500" />
         </div>
         <h3 className="text-2xl font-bold text-slate-900 mb-2">
           Message envoyé !
@@ -169,7 +169,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+        className="w-full py-4 bg-gradient-to-r from-[#FF8C42] to-[#E04400] text-white font-bold rounded-lg hover:shadow-lg transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
       >
         {loading ? (
           <>

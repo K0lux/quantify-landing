@@ -11,6 +11,9 @@ export const metadata = {
   description: 'Digitalisez vos compteurs, suivez votre consommation en temps réel, payez en un clic via Flooz et YasTogo.',
   keywords: 'énergie, compteur électrique, OCR, IA, Togo, Afrique, mobile money',
   authors: [{ name: 'Quantify Team' }],
+  icons: {
+    icon: '/icon',
+  },
   openGraph: {
     title: 'Quantify - L\'Énergie Sous Contrôle',
     description: 'La révolution énergétique commence ici',

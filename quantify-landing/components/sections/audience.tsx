@@ -7,28 +7,19 @@ const audiences = [
   'Propriétaires d\'immeubles',
   'Gestionnaires de copropriétés',
   'Syndics',
-  'Bâtiments industriels',
   'Familles & particuliers',
   'Colocataires',
   'Résidences étudiantes',
-  'Hôtels & hospitality',
+  'Hôtels et résidences',
   'Entreprises',
+  'Bâtiments industriels',
   'Fournisseurs d\'énergie',
   'Collectivités locales',
-  'ONG & associations',
-  'Investisseurs immobiliers',
-  'Marchés & zones commerciales',
-  'Commerçants locaux',
-  'Électriciens',
-  'Plombiers & techniciens',
-  'Prestataires IT',
-  'Déménageurs',
-  'Artisans du bâtiment',
-  'Agences immobilières',
+  'ONG et associations',
   'Campus universitaires',
   'Centres de santé',
-  'Restaurants & bars',
-  'Ateliers & manufactures',
+  'Commerces et restaurants',
+  'Ateliers et manufactures',
 ]
 
 function MarqueeRow({ items, direction = 'left', speed = 40 }: { items: string[]; direction?: 'left' | 'right'; speed?: number }) {
@@ -71,8 +62,9 @@ function MarqueeRow({ items, direction = 'left', speed = 40 }: { items: string[]
 }
 
 export function AudienceSection() {
-  const row1 = audiences.slice(0, 13)
-  const row2 = audiences.slice(13)
+  const middle = Math.ceil(audiences.length / 2)
+  const row1 = audiences.slice(0, middle)
+  const row2 = audiences.slice(middle)
 
   return (
     <section id="audiences" className="py-16 sm:py-20 bg-slate-50 overflow-hidden">

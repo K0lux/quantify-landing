@@ -1,15 +1,9 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createClient } from '@/lib/supabase/client'
-import { getCurrentUser } from '@/lib/auth'
 import type { 
   WaitlistUser,
   UserProfile,
-  UpdateUserProfile,
 } from '@/types'
-import { 
-  createUserProfileSchema,
-  validateWithErrors
-} from '@/lib/validation/schemas'
 
 export interface UserData {
   id: string
@@ -22,7 +16,6 @@ export interface UserData {
   updatedAt: number
   lastSignInAt?: number
 }
-
 export interface SyncResult {
   success: boolean
   userId?: string
@@ -32,13 +25,6 @@ export interface SyncResult {
   userProfile?: UserProfile | null
   fromWaitlist?: boolean
 }
-
-export interface UserSyncOptions {
-  forceUpdate?: boolean
-  createIfNotExists?: boolean
-  syncWaitlistData?: boolean
-}
-
 export class SupabaseIntegration {
   private supabase
 
@@ -230,50 +216,4 @@ export class SupabaseIntegration {
       return null
     }
   }
-}
-
-export async function syncCurrentUser(options?: UserSyncOptions): Promise<SyncResult> {
-  try {
-    const user = await getCurrentUser()
-    if (!user) {
-      return { success: false, error: 'NO_CURRENT_USER', details: 'No user currently signed in' }
-    }
-
-    const integration = new SupabaseIntegration(true)
-    return await integration.syncUserFromWaitlist(user.id, user.email || '')
-  } catch (error) {
-    console.error('[SupabaseIntegration] Sync current user error:', error)
-    return {
-      success: false,
-      error: 'SYNC_ERROR',
-      details: error instanceof Error ? error.message : 'Unknown error',
-    }
-  }
-}
-
-export async function getCurrentUserProfile(): Promise<UserProfile | null> {
-  try {
-    const user = await getCurrentUser()
-    if (!user) return null
-
-    const integration = new SupabaseIntegration(true)
-    const result = await integration.getUserProfile(user.id)
-    return result.userProfile || null
-  } catch (error) {
-    console.error('[SupabaseIntegration] Get current user profile error:', error)
-    return null
-  }
-}
-
-export async function hasSupabaseProfile(): Promise<boolean> {
-  const profile = await getCurrentUserProfile()
-  return profile !== null
-}
-
-export async function forceUserSync(): Promise<SyncResult> {
-  return syncCurrentUser({
-    forceUpdate: true,
-    createIfNotExists: true,
-    syncWaitlistData: true,
-  })
 }

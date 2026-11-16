@@ -6,10 +6,6 @@ import { ProblemSection } from '@/components/sections/problem'
 import { SolutionSection } from '@/components/sections/solution'
 import { AudienceSection } from '@/components/sections/audience'
 import { ArchitectureSection } from '@/components/sections/architecture'
-import { WalletSection } from '@/components/sections/wallet'
-import { KiloSection } from '@/components/sections/kilo'
-import { BusinessModelSection } from '@/components/sections/business-model'
-import { TeamSection } from '@/components/sections/team'
 import { ImpactSection } from '@/components/sections/impact'
 import { UseCasesSection } from '@/components/sections/use-cases'
 import { FAQSection } from '@/components/sections/faq'
@@ -25,10 +21,6 @@ export function QuantifyLanding() {
       <SolutionSection />
       <AudienceSection />
       <ArchitectureSection />
-      <WalletSection />
-      <KiloSection />
-      <BusinessModelSection />
-      <TeamSection />
       <ImpactSection />
       <UseCasesSection />
       <FAQSection />

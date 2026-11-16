@@ -1,7 +1,8 @@
 import { Metadata } from 'next'
-import { Zap, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { RegisterForm } from '@/components/auth/register-form'
+import { QWordmark } from '@/components/brand/QMark'
 
 export const metadata: Metadata = {
   title: 'Créer un compte - Quantify',
@@ -12,9 +13,7 @@ export default function CreerComptePage() {
   return (
     <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
       <div className="bg-gradient-to-r from-yellow-500 to-orange-600 p-8 text-center">
-        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <Zap className="w-8 h-8 text-orange-600" />
-        </div>
+        <QWordmark height={34} variant="white" className="mx-auto mb-4" />
         <h1 className="text-3xl font-bold text-white mb-2">
           Créer votre compte
         </h1>

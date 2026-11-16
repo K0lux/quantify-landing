@@ -4,53 +4,13 @@ import { FadeIn } from '@/components/animations/fade-in'
 import {
   ArrowRight,
   Calculator,
-  Clock,
   Gauge,
-  HelpCircle,
   MapPin,
-  SearchX,
   ShieldAlert,
-  UserX,
-  XCircle
+  UserX
 } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
-
-function AnimatedCounter({ target, duration = 1500 }: { target: number; duration?: number }) {
-  const [count, setCount] = useState(0)
-  const [started, setStarted] = useState(false)
-  const ref = useRef<HTMLSpanElement>(null)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setStarted(true) },
-      { threshold: 0.5 }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
-  useEffect(() => {
-    if (!started) return
-    const steps = 30
-    const increment = target / steps
-    let current = 0
-    const timer = setInterval(() => {
-      current += increment
-      if (current >= target) {
-        setCount(target)
-        clearInterval(timer)
-      } else {
-        setCount(Math.floor(current))
-      }
-    }, duration / steps)
-    return () => clearInterval(timer)
-  }, [started, target, duration])
-
-  return <span ref={ref} className={started ? 'anim-count-pop' : 'opacity-0'}>{count}</span>
-}
 
 function StaggeredItem({ children, index, className = '' }: { children: React.ReactNode; index: number; className?: string }) {
   const [visible, setVisible] = useState(false)
@@ -82,8 +42,6 @@ function StaggeredItem({ children, index, className = '' }: { children: React.Re
 }
 
 export function ProblemSection() {
-  const [activeCard, setActiveCard] = useState<number | null>(null)
-
   const problems = [
     {
       tag: 'Compteurs & Factures',
@@ -98,55 +56,29 @@ export function ProblemSection() {
         { icon: ShieldAlert, text: 'Factures imprévues, sans preuve ni historique fiable' },
       ],
     },
-    {
-      tag: 'Produits & Articles',
-      tagIcon: SearchX,
-      title: 'Impossible de chercher un produit adapté localement',
-      description:
-        "Avant d'acheter ou de se déplacer, aucun outil ne permet de comparer prix, disponibilité et horaires réels des commerces autour de soi.",
-      painPoints: [
-        { icon: HelpCircle, text: 'Aucun conseil personnalisé selon votre contexte ou besoin' },
-        { icon: XCircle, text: 'Prix, stock et disponibilité inconnus avant le déplacement' },
-        { icon: Clock, text: "Horaires d'ouverture non fiables — trajets souvent inutiles" },
-        { icon: MapPin, text: 'Pas de vision locale : impossible de comparer les offres à proximité' },
-      ],
-    },
-    {
-      tag: 'Services & Prestataires',
-      tagIcon: UserX,
-      title: 'Trouver un prestataire fiable relève du parcours du combattant',
-      description:
-        "Électricien, plombier, maçon, technicien IT, déménageur… En urgence, pas moyen de comparer devis, prix ou disponibilité.",
-      painPoints: [
-        { icon: Clock, text: 'Perte de temps énorme pour trouver « la bonne personne »' },
-        { icon: ShieldAlert, text: "Aucune garantie de confiance, pas d'avis vérifiés" },
-        { icon: Calculator, text: "Impossible de comparer devis ou tarifs avant de s'engager" },
-        { icon: SearchX, text: 'Bâtiment, nettoyage, informatique, transport — même galère partout' },
-      ],
-    },
   ]
 
   return (
-    <section className="py-20 sm:py-32 bg-slate-50">
+    <section className="py-12 sm:py-20 lg:py-32 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn>
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
-              <AnimatedCounter target={3} duration={800} /> problèmes,{' '}
-              <span className="text-orange-500">0 solution adaptée</span>
+          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 lg:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-4 sm:mb-6 leading-tight">
+              Une gestion énergétique{' '}
+              <span className="text-orange-500">encore trop manuelle</span>
             </h2>
-            <p className="text-lg sm:text-xl text-slate-700 leading-relaxed">
-              Des millions de personnes subissent ces frustrations au quotidien — et pourtant,
-              aucun outil ne les résout de bout en bout.
+            <p className="text-base sm:text-xl text-slate-700 leading-relaxed">
+              Relevés, répartition des charges et historique restent souvent dispersés entre plusieurs
+              outils et calculs manuels.
             </p>
           </div>
         </FadeIn>
 
         {/* Real meters from Togo — credibility banner */}
         <FadeIn delay={0.15}>
-          <div className="mb-12 rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-slate-200">
-              <div className="relative aspect-[3/4] bg-slate-100 overflow-hidden">
+          <div className="mb-8 sm:mb-12 rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-lg">
+            <div className="grid grid-cols-4 gap-px bg-slate-200">
+              <div className="relative aspect-square bg-slate-100 overflow-hidden">
                 <Image
                   src="/meter-ceet-double.png"
                   alt="Deux compteurs prépayés CEET LAFIA au Togo"
@@ -155,7 +87,7 @@ export function ProblemSection() {
                   sizes="(max-width: 640px) 50vw, 25vw"
                 />
               </div>
-              <div className="relative aspect-[3/4] bg-slate-100 overflow-hidden">
+              <div className="relative aspect-square bg-slate-100 overflow-hidden">
                 <Image
                   src="/meter-analog-closeup.png"
                   alt="Compteur analogique monophasé — 40 466 kWh"
@@ -164,7 +96,7 @@ export function ProblemSection() {
                   sizes="(max-width: 640px) 50vw, 25vw"
                 />
               </div>
-              <div className="relative aspect-[3/4] bg-slate-100 overflow-hidden">
+              <div className="relative aspect-square bg-slate-100 overflow-hidden">
                 <Image
                   src="/meter-sous-compteur-1.png"
                   alt="Sous-compteur YAKI Electric monophasé — 3 664 kWh"
@@ -173,7 +105,7 @@ export function ProblemSection() {
                   sizes="(max-width: 640px) 50vw, 25vw"
                 />
               </div>
-              <div className="relative aspect-[3/4] bg-slate-100 overflow-hidden">
+              <div className="relative aspect-square bg-slate-100 overflow-hidden">
                 <Image
                   src="/meter-sous-compteur-2.png"
                   alt="Sous-compteur YAKI Electric avec disjoncteur"
@@ -183,8 +115,8 @@ export function ProblemSection() {
                 />
               </div>
             </div>
-            <div className="px-6 py-4 bg-slate-900 text-center">
-              <p className="text-sm text-slate-300">
+            <div className="bg-slate-900 px-3 py-3 text-center sm:px-6 sm:py-4">
+              <p className="text-xs leading-relaxed text-slate-300 sm:text-sm">
                 <span className="font-semibold text-white">Vrais compteurs au Togo</span> — CEET, YAKI, YAKI.
                 Compteurs principaux et sous-compteurs. Quantify les digitalise tous.
               </p>
@@ -209,24 +141,21 @@ export function ProblemSection() {
                   </div>
 
                   <div
-                    className={`bg-white rounded-2xl shadow-lg overflow-hidden border transition-all duration-500 cursor-pointer hover-lift ${
-                      activeCard === index ? 'border-orange-500/40 shadow-xl' : 'border-slate-200'
-                    }`}
-                    onClick={() => setActiveCard(activeCard === index ? null : index)}
+                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg transition-shadow hover:shadow-xl"
                   >
                     <div className="grid lg:grid-cols-5 gap-0">
-                      <div className="lg:col-span-2 p-8 sm:p-10 flex flex-col justify-center">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold text-white w-fit mb-5 bg-blue-900">
+                      <div className="flex flex-col justify-center p-4 sm:p-8 lg:col-span-2 lg:p-10">
+                        <div className="inline-flex w-fit items-center gap-2 rounded-full bg-blue-900 px-3 py-1.5 text-xs font-bold text-white mb-4 sm:mb-5">
                           <problem.tagIcon className="w-3.5 h-3.5" />
                           <span>{problem.tag}</span>
                         </div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 leading-snug">
+                        <h3 className="text-lg sm:text-2xl font-bold text-slate-900 mb-3 sm:mb-4 leading-snug">
                           {problem.title}
                         </h3>
                         <p className="text-base text-slate-700 leading-relaxed">{problem.description}</p>
                       </div>
 
-                      <div className="lg:col-span-3 bg-slate-50 p-8 sm:p-10">
+                      <div className="bg-slate-50 p-4 sm:p-8 lg:col-span-3 lg:p-10">
                         <div className="grid sm:grid-cols-2 gap-4">
                           {problem.painPoints.map((pain, i) => (
                             <StaggeredItem key={i} index={i}>
@@ -249,16 +178,16 @@ export function ProblemSection() {
         </div>
 
         <FadeIn delay={0.5}>
-          <div className="mt-12 rounded-2xl p-8 text-center border border-orange-500/25 bg-orange-500/5 hover-lift">
-            <p className="text-lg sm:text-xl text-slate-900 font-bold mb-2">
-              Et la peur du surcoût en ligne ?
+          <div className="mt-8 rounded-2xl border border-orange-500/25 bg-orange-500/5 p-5 text-center sm:mt-12 sm:p-8 hover-lift">
+            <p className="mb-2 text-base font-bold text-slate-900 sm:text-xl">
+              Sans suivi fiable, difficile d&apos;anticiper sa consommation
             </p>
-            <p className="text-base text-slate-700 max-w-2xl mx-auto leading-relaxed">
-              Commissions cachées, prix gonflés, perte de contrôle… Les utilisateurs préfèrent encore
-              la méthode traditionnelle plutôt que de risquer de payer plus en ligne.
+            <p className="max-w-2xl mx-auto text-sm text-slate-700 leading-relaxed sm:text-base">
+              Des relevés réguliers et un historique partagé aident à repérer les écarts, mieux répartir
+              les charges et comprendre les factures.
             </p>
             <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-slate-900">
-              <span>Quantify change la donne</span>
+              <span>Quantify centralise vos données énergétiques</span>
               <ArrowRight className="w-4 h-4 arrow-animate" />
             </div>
           </div>

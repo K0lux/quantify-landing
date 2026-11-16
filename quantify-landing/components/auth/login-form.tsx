@@ -132,8 +132,8 @@ export function LoginForm({ className, redirectTo: redirectToProp = '/dashboard'
         disabled={isLoading || !email || !password}
         className={cn(
           'w-full py-3.5 px-6 rounded-xl font-semibold text-white transition-all duration-200',
-          'bg-gradient-to-r from-blue-600 to-purple-600',
-          'hover:from-blue-700 hover:to-purple-700',
+          'bg-gradient-to-r from-[#FF8C42] to-[#E04400]',
+          'hover:from-[#E04400] hover:to-[#C44D00]',
           'focus:ring-4 focus:ring-blue-500/50',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'flex items-center justify-center gap-2'

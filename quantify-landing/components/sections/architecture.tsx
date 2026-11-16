@@ -62,34 +62,78 @@ const entities = [
 
 export function ArchitectureSection() {
   const [activeEntity, setActiveEntity] = useState<string | null>(null)
+  const mobileEntity = entities.find((entity) => entity.id === activeEntity) ?? entities[0]
 
   return (
-    <section id="architecture" className="py-20 sm:py-32 bg-white">
+    <section id="architecture" className="pb-8 pt-10 sm:py-20 lg:py-32 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn>
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-900 text-white text-sm font-bold mb-6">
+          <div className="text-center max-w-3xl mx-auto mb-5 sm:mb-12 lg:mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-900 text-white text-sm font-bold mb-2 sm:mb-6">
               <Layers3 className="w-4 h-4" />
               <span>Architecture Quantify</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">
-              4 entités pour gouverner <span className="text-orange-500">toute</span> votre énergie
+            <h2 className="mb-2 text-2xl font-extrabold leading-tight text-slate-900 sm:mb-6 sm:text-4xl lg:text-5xl">
+              4 entités pour piloter <span className="text-orange-500">votre</span> énergie
             </h2>
-            <p className="text-lg text-slate-700 leading-relaxed">
-              Un modèle structuré qui s'adapte du simple foyer aux grands ensembles immobiliers.
+            <p className="text-base sm:text-lg text-slate-700 leading-relaxed">
+              Du compteur principal aux sous-compteurs, chaque usage reste relié et clair.
             </p>
           </div>
         </FadeIn>
 
+        {/* Mobile selectors show their active details immediately below the controls. */}
+        <div className="mb-6 rounded-3xl bg-blue-900 p-3 sm:mb-8 sm:p-6 lg:hidden">
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label="Choisir une entité énergétique">
+            {entities.map((entity) => {
+              const selected = mobileEntity.id === entity.id
+              return (
+                <button
+                  key={entity.id}
+                  type="button"
+                  onClick={() => setActiveEntity(entity.id)}
+                  aria-pressed={selected}
+                  className={`flex min-h-12 items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 ${
+                    selected
+                      ? 'border-orange-400 bg-orange-500 text-white'
+                      : 'border-white/15 bg-white/5 text-slate-200 hover:bg-white/10'
+                  }`}
+                >
+                  <entity.icon className="h-4 w-4 shrink-0" />
+                  <span>{entity.label}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="mt-2 rounded-2xl border border-white/10 bg-white/10 p-3 sm:mt-3 sm:p-4" aria-live="polite">
+            <div className="mb-1.5 flex items-center gap-3 sm:mb-2">
+              <mobileEntity.icon className="h-6 w-6 shrink-0 text-orange-300" />
+              <h3 className="font-bold text-white">{mobileEntity.label}</h3>
+            </div>
+            <p className="mb-2 text-[13px] leading-snug text-slate-200 sm:mb-3 sm:text-sm sm:leading-relaxed">{mobileEntity.short}</p>
+            <ul className="space-y-1.5 sm:space-y-2">
+              {mobileEntity.details.map((detail) => (
+                <li key={detail} className="flex items-start gap-2 text-xs leading-snug text-white/90">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-orange-400" />
+                  <span>{detail}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
         {/* Visual flow diagram */}
         <FadeIn delay={0.15}>
-          <div className="bg-blue-900 rounded-3xl p-8 sm:p-12 mb-12">
+          <div className="hidden bg-blue-900 rounded-3xl p-8 sm:p-12 mb-12 lg:block">
             {/* Flow: horizontal on desktop, vertical on mobile */}
             <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-0">
               {entities.map((entity, idx) => (
                 <div key={entity.id} className="flex flex-col lg:flex-row items-center gap-4">
                   <button
+                    type="button"
                     onClick={() => setActiveEntity(activeEntity === entity.id ? null : entity.id)}
+                    aria-pressed={activeEntity === entity.id}
                     className={`group flex flex-col items-center gap-3 px-6 py-5 rounded-2xl transition-all duration-300 min-w-[160px] ${
                       activeEntity === entity.id
                         ? 'bg-orange-500 text-white scale-105'
@@ -161,17 +205,10 @@ export function ArchitectureSection() {
         </FadeIn>
 
         {/* Entity cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="hidden grid-cols-4 gap-4 lg:grid">
           {entities.map((entity, idx) => (
             <FadeIn key={entity.id} delay={idx * 0.1}>
-              <div
-                className={`rounded-2xl border overflow-hidden hover-lift cursor-pointer transition-all duration-300 ${
-                  activeEntity === entity.id
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-slate-200 bg-slate-50 hover:border-blue-900'
-                }`}
-                onClick={() => setActiveEntity(activeEntity === entity.id ? null : entity.id)}
-              >
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
                 {entity.photo && (
                   <div className="relative h-30 bg-slate-200 overflow-hidden">
                     <Image

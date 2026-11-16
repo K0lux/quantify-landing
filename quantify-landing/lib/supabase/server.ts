@@ -23,7 +23,7 @@ export async function createServerSupabaseClient() {
             cookiesToSet.forEach(({ name, value, options }) => {
               cookieStore.set(name, value, options)
             })
-          } catch (error) {
+          } catch {
             // Cookies can only be modified in a Route Handler or Server Action
           }
         },

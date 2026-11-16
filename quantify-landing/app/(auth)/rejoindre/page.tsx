@@ -1,8 +1,9 @@
 import { Metadata } from 'next'
-import { Zap, ArrowLeft, UserPlus } from 'lucide-react'
+import { ArrowLeft, UserPlus } from 'lucide-react'
 import Link from 'next/link'
 import { WaitlistForm } from '@/components/waitlist/waitlist-form'
 import { WaitlistCounter } from '@/components/waitlist/waitlist-counter'
+import { QWordmark } from '@/components/brand/QMark'
 
 export const metadata: Metadata = {
   title: 'Rejoindre Quantify - Inscription Liste d\'Attente',
@@ -14,25 +15,23 @@ export default function Rejoindre() {
   return (
     <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-yellow-500 to-orange-600 p-8 text-center">
-        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <Zap className="w-8 h-8 text-orange-600" />
-        </div>
-        <h1 className="text-3xl font-bold text-white mb-2">
+      <div className="bg-gradient-to-r from-yellow-500 to-orange-600 p-5 text-center sm:p-8">
+        <QWordmark height={34} variant="white" className="mx-auto mb-4" />
+        <h1 className="mb-2 text-2xl font-bold text-white sm:text-3xl">
           Rejoignez Quantify
         </h1>
         <p className="text-white/90">
-          Soyez parmi les premiers à transformer votre énergie
+          Soyez parmi les premiers à mieux maîtriser votre consommation énergétique.
         </p>
       </div>
 
       {/* Form */}
-      <div className="p-8">
-        <WaitlistForm />
+      <div className="p-4 sm:p-8">
+        <WaitlistForm compact className="border-0 p-0 shadow-none" />
       </div>
 
       {/* Footer */}
-      <div className="bg-slate-50 px-8 py-6 border-t border-slate-200 space-y-4">
+      <div className="space-y-4 border-t border-slate-200 bg-slate-50 px-4 py-5 sm:px-8 sm:py-6">
         <div className="text-center mb-4">
           <WaitlistCounter />
         </div>

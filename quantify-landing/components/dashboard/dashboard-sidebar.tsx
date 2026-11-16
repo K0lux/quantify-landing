@@ -10,6 +10,7 @@ import {
   Home, Users, Trophy, Settings, HelpCircle, 
   Zap, BarChart3, Gift 
 } from 'lucide-react'
+import { QWordmark } from '@/components/brand/QMark'
 
 export function DashboardSidebar() {
   const pathname = usePathname()
@@ -26,6 +27,11 @@ export function DashboardSidebar() {
 
   return (
     <aside className="hidden lg:block w-64 bg-white border-r border-slate-200 min-h-screen">
+      <div className="px-5 py-6 border-b border-slate-200">
+        <Link href="/dashboard" aria-label="Quantify - tableau de bord">
+          <QWordmark height={27} variant="dark" />
+        </Link>
+      </div>
       <nav className="p-4 space-y-2">
         {navigation.map((item) => {
           const isActive = pathname === item.href
@@ -48,9 +54,9 @@ export function DashboardSidebar() {
 
       {/* Quick Stats */}
       <div className="p-4 mt-8">
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-4">
+        <div className="bg-gradient-to-br from-orange-50 to-white rounded-xl p-4">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-[#FF8C42] to-[#E04400] rounded-lg flex items-center justify-center">
               <Zap className="w-5 h-5 text-white" />
             </div>
             <div className="text-sm">
@@ -60,7 +66,7 @@ export function DashboardSidebar() {
           </div>
           <Link
             href="/dashboard/premium"
-            className="block w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center rounded-lg font-semibold text-sm hover:shadow-lg transition-all"
+            className="block w-full px-4 py-2 bg-gradient-to-r from-[#FF8C42] to-[#E04400] text-white text-center rounded-lg font-semibold text-sm hover:shadow-lg transition-all"
           >
             En savoir plus
           </Link>

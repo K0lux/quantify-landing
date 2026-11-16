@@ -5,7 +5,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { 
@@ -42,11 +42,6 @@ interface SubmissionState {
   error: string | null
   position?: number
   referralCode?: string
-}
-
-type FieldError = {
-  field: string
-  message: string
 }
 
 // ==========================================
@@ -92,7 +87,6 @@ export function WaitlistForm({
   // HOOKS ET STATE
   // ==========================================
   
-  const router = useRouter()
   const searchParams = useSearchParams()
   const { showToast } = useToast()
   const { track } = useAnalytics()
@@ -113,7 +107,6 @@ export function WaitlistForm({
     handleSubmit,
     formState: { errors, isSubmitting, touchedFields },
     reset,
-    watch,
     setValue,
     clearErrors
   } = useForm<WaitlistFormInput>({
@@ -130,9 +123,6 @@ export function WaitlistForm({
     },
     mode: 'onBlur'
   })
-  
-  // Watcher pour les changements en temps réel
-  const watchedValues = watch()
   
   // ==========================================
   // HANDLERS
@@ -254,22 +244,6 @@ export function WaitlistForm({
     })
   }, [showReferralField, setValue, clearErrors, track])
   
-  /**
-   * Valide un champ en temps réel
-   */
-  const validateField = useCallback((fieldName: keyof WaitlistFormInput, value: string) => {
-    try {
-      const fieldSchema = waitlistFormSchema.shape[fieldName]
-      fieldSchema.parse(value)
-      return null
-    } catch (error) {
-      if (error instanceof Error) {
-        return error.message
-      }
-      return 'Valeur invalide'
-    }
-  }, [])
-  
   // ==========================================
   // UTILITAIRES D'INTERFACE
   // ==========================================
@@ -304,7 +278,7 @@ export function WaitlistForm({
   if (submissionState.isSuccess) {
     return (
       <div className={cn(
-        'bg-white rounded-2xl p-8 shadow-lg border border-green-200',
+        'bg-white rounded-2xl p-5 shadow-lg border border-green-200 sm:p-8',
         className
       )}>
         <div className="text-center">
@@ -321,7 +295,7 @@ export function WaitlistForm({
           </p>
           
           {submissionState.position && (
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-6">
+            <div className="bg-gradient-to-r from-orange-50 to-white rounded-xl p-6 mb-6">
               <p className="text-3xl font-bold text-blue-600 mb-2">
                 Position #{submissionState.position}
               </p>
@@ -363,8 +337,8 @@ export function WaitlistForm({
     <form 
       onSubmit={handleSubmit(onSubmit)}
       className={cn(
-        'bg-white rounded-2xl p-6 shadow-lg border border-slate-200',
-        { 'p-4': compact },
+        'bg-white rounded-2xl shadow-lg border border-slate-200',
+        compact ? 'p-4' : 'p-4 sm:p-6',
         className
       )}
       noValidate
@@ -392,7 +366,7 @@ export function WaitlistForm({
         </div>
       )}
       
-      <div className="space-y-6">
+      <div className={compact ? 'space-y-4 sm:space-y-5' : 'space-y-6'}>
         {/* Email */}
         <div>
           <label htmlFor="email" className="block text-sm font-semibold text-slate-800 mb-1.5">

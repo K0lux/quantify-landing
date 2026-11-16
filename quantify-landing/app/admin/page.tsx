@@ -1,8 +1,8 @@
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { Metadata } from 'next'
 import {
-  Users, Mail, TrendingUp, Clock,
-  UserCheck, UserX, ArrowUpRight, ArrowDownRight,
+  Users, Mail, Clock,
+  UserCheck, ArrowUpRight, ArrowDownRight,
   Activity
 } from 'lucide-react'
 
@@ -82,7 +82,7 @@ export default async function AdminDashboardPage() {
       label: 'Newsletter',
       value: stats.totalNewsletter,
       icon: Mail,
-      color: 'purple',
+      color: 'orange',
       trend: 'Abonnés actifs',
       trendUp: null,
     },
@@ -92,7 +92,6 @@ export default async function AdminDashboardPage() {
     blue: { bg: 'bg-blue-50', icon: 'text-blue-900', badge: 'bg-blue-100 text-blue-700' },
     orange: { bg: 'bg-orange-50', icon: 'text-orange-500', badge: 'bg-orange-100 text-orange-700' },
     green: { bg: 'bg-green-50', icon: 'text-green-600', badge: 'bg-green-100 text-green-700' },
-    purple: { bg: 'bg-purple-50', icon: 'text-purple-600', badge: 'bg-purple-100 text-purple-700' },
   }
 
   return (

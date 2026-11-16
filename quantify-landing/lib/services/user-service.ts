@@ -91,7 +91,6 @@ export class UserService {
       }
 
       let waitlistData: WaitlistUser | null = null
-      
       if (options.includeWaitlistData && userProfile?.waitlist_id) {
         const waitlistResult = await this.getWaitlistDataById(userProfile.waitlist_id)
         if (waitlistResult.success) {

@@ -12,10 +12,6 @@ const faqs = [
     answer: 'Le mère est le compteur physique principal, le lié est rattaché à un mère ou autonome, le virtuel agrège plusieurs sources sans modifier les données physiques, et la vue est un accès sécurisé partagé.',
   },
   {
-    question: 'Comment fonctionne le wallet de crédits QC ?',
-    answer: 'Vous achetez des crédits QC via Mobile Money (Flooz, TMoney). Chaque action payante (scan, analyse Kilo, export) est débitée en QC. Pas d\'abonnement, que du prépaiement.',
-  },
-  {
     question: 'Que se passe-t-il sans connexion internet ?',
     answer: 'Les relevés peuvent être saisis hors-ligne et synchronisés plus tard avec leur horodatage réel. Les alertes passent par SMS dès que la connexion revient.',
   },
@@ -28,28 +24,12 @@ const faqs = [
     answer: 'Oui. Chaque calcul est stocké avec ses paramètres et sa version d\'algorithme, pour pouvoir être rejoué à l\'identique en cas de contestation.',
   },
   {
-    question: 'Comment fonctionne Quantify Market pour les commerçants ?',
-    answer: 'Vous créez une vitrine reliée à votre compte, publiez vos produits avec prix et disponibilité en temps réel. Les clients vous trouvent via la recherche IA et vous contactent directement.',
-  },
-  {
-    question: 'Les prix des produits/services sont-ils gonflés sur la plateforme ?',
-    answer: 'Non. Les commerçants fixent leurs prix librement. Quantify ne prend pas de marge sur les prix affichés — le modèle repose sur des Lead Fees et des commissions transparentes en QC.',
-  },
-  {
-    question: 'Comment trouver un prestataire de confiance ?',
-    answer: 'Chaque prestataire a un profil vérifié avec bio, certifications, zone d\'intervention et Trust Score basé sur les missions réelles. Vous pouvez comparer les devis avant de choisir.',
-  },
-  {
-    question: 'Kilo est-il un chatbot ou un vrai agent IA ?',
-    answer: 'Kilo est un agent IA contextuel qui connaît vos compteurs, vos factures et vos alertes. Il peut analyser, recommander et déclencher des actions (alertes, recherche de prestataires) avec votre accord.',
-  },
-  {
     question: 'Quantify est-il disponible en dehors du Togo ?',
     answer: 'Le lancement est au Togo, mais l\'architecture est conçue pour s\'étendre à toute l\'Afrique de l\'Ouest et au-delà. Les compteurs analogiques existent en Inde, au Brésil, en Pologne, etc.',
   },
   {
-    question: 'Quels sont les coûts pour un particulier ?',
-    answer: 'L\'inscription est gratuite. Vous achetez des packs de crédits QC à partir de 500 FCFA. Un scan coûte ~5 QC, une analyse Kilo ~10 QC. Pas d\'abonnement mensuel.',
+    question: 'Quels sont les coûts pour un particulier, un propriétaire ou un gestionnaire ?',
+    answer: 'L’utilisation de Quantify est gratuite pour un particulier. Les propriétaires, gestionnaires ou administrateurs peuvent avoir une offre payante selon leurs besoins et leurs cas d’utilisation.',
   },
 ]
 
@@ -63,7 +43,7 @@ export function FAQSection() {
               Questions fréquentes
             </h2>
             <p className="text-lg text-slate-700">
-              Tout ce que vous devez savoir sur Quantify en un seul endroit.
+              Compteurs, relevés, factures et suivi de votre consommation.
             </p>
           </div>
         </FadeIn>

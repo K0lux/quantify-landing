@@ -1,6 +1,6 @@
 
 // ============================================
-// next.config.js
+// next.config.ts
 // ============================================
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -13,17 +13,10 @@ const nextConfig = {
       bodySizeLimit: '2mb',
     },
   },
-  // Performance optimizations
-  swcMinify: true,
+  // Response compression
   compress: true,
   poweredByHeader: false,
   
-  // Internationalization (future)
-  // i18n: {
-  //   locales: ['fr', 'en'],
-  //   defaultLocale: 'fr',
-  // },
-
   // Headers for security
   async headers() {
     return [
