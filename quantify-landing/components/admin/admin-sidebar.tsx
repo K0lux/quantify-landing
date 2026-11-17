@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Users, Bell, Mail,
+  LayoutDashboard, Users, Bell, Mail, MessageSquare,
   FileEdit, Settings, ChevronLeft, ChevronRight
 } from 'lucide-react'
 import { useState } from 'react'
@@ -11,6 +11,7 @@ import { useState } from 'react'
 const nav = [
   { name: 'Vue d\'ensemble', href: '/admin', icon: LayoutDashboard },
   { name: 'Waitlist', href: '/admin/waitlist', icon: Users },
+  { name: 'Messages', href: '/admin/messages', icon: MessageSquare },
   { name: 'Notifications', href: '/admin/notifications', icon: Bell },
   { name: 'Newsletter', href: '/admin/newsletter', icon: Mail },
   { name: 'Contenu', href: '/admin/content', icon: FileEdit },

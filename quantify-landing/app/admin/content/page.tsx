@@ -17,7 +17,7 @@ async function getContent() {
   return (data ?? []).map((item) => ({
     ...item,
     value: item.value ?? '',
-    type: item.type ?? 'text',
+    type: item.type === 'html' ? 'html' as const : item.type === 'json' ? 'json' as const : 'text' as const,
     updated_at: item.updated_at ?? undefined,
   }))
 }

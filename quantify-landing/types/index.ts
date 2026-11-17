@@ -79,20 +79,16 @@ export interface WaitlistUser {
   email: Email
   phone: PhoneNumber | null
   full_name: string | null
-  country: string
-  user_type: Exclude<UserType, 'admin'>
-  referral_code: ReferralCode
+  country: string | null
+  user_type: string | null
+  referral_code: ReferralCode | null
   referred_by: ReferralCode | null
-  position: number
-  status: WaitlistStatus
-  metadata: JsonValue | null
-  created_at: ISODateString
-  updated_at: ISODateString
-  
-  // Relations calculées (pas stockées en DB)
-  referrals_count?: number
-  total_points?: number
-  estimated_launch_date?: ISODateString
+  position: number | null
+  status: string | null
+  created_at: ISODateString | null
+  updated_at: ISODateString | null
+  invited_at: ISODateString | null
+  converted_at: ISODateString | null
 }
 
 /**
@@ -106,17 +102,14 @@ export interface UserProfile {
   phone: PhoneNumber | null
   first_name: string | null
   last_name: string | null
-  avatar_url: string | null
   country: string | null
-  city: string | null
-  user_type: UserType
-  subscription_plan: SubscriptionPlan
-  subscription_status: 'active' | 'inactive' | 'cancelled' | 'past_due'
-  onboarding_completed: boolean
+  user_type: string | null
+  subscription_plan: string | null
+  subscription_status: string | null
+  onboarding_completed: boolean | null
   preferences: UserPreferences | null
   metadata: JsonValue | null
-  created_at: ISODateString
-  updated_at: ISODateString
+  created_at: ISODateString | null
   last_login_at: ISODateString | null
 }
 
@@ -144,19 +137,13 @@ export interface UserPreferences {
  */
 export interface Referral {
   id: UUID
-  referrer_id: UUID
-  referred_id: UUID
+  referrer_id: UUID | null
+  referred_email: Email
   referral_code: ReferralCode
-  status: 'pending' | 'completed' | 'expired' | 'cancelled'
-  reward_type: 'position_boost' | 'credits' | 'premium_trial' | 'cash'
-  reward_value: number
-  reward_claimed: boolean
-  reward_claimed_at: ISODateString | null
-  completed_at: ISODateString | null
-  expires_at: ISODateString | null
-  metadata: Record<string, unknown> | null
-  created_at: ISODateString
-  updated_at: ISODateString
+  status: string | null
+  reward_type: string | null
+  reward_value: number | null
+  created_at: ISODateString | null
 }
 
 /**
@@ -165,15 +152,12 @@ export interface Referral {
 export interface Analytics {
   id: UUID
   user_id: UUID | null
-  session_id: string | null
   event_type: string
   event_name: string
-  properties: Record<string, unknown>
+  properties: JsonValue | null
   user_agent: string | null
   ip_address: string | null
-  country: string | null
-  referrer: string | null
-  created_at: ISODateString
+  created_at: ISODateString | null
 }
 
 /**
@@ -355,10 +339,10 @@ export type Pick<T, K extends keyof T> = {
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 
 // Types pour les opérations CRUD
-export type CreateWaitlistUser = Omit<WaitlistUser, 'id' | 'created_at' | 'updated_at' | 'position'>
-export type UpdateWaitlistUser = Partial<Pick<WaitlistUser, 'phone' | 'full_name' | 'status' | 'metadata'>>
-export type CreateUserProfile = Omit<UserProfile, 'id' | 'created_at' | 'updated_at' | 'last_login_at'>
-export type UpdateUserProfile = Partial<Omit<UserProfile, 'id' | 'auth_user_id' | 'created_at' | 'updated_at'>>
+export type CreateWaitlistUser = Omit<WaitlistUser, 'id' | 'created_at' | 'updated_at' | 'invited_at' | 'converted_at' | 'position'>
+export type UpdateWaitlistUser = Partial<Pick<WaitlistUser, 'phone' | 'full_name' | 'status'>>
+export type CreateUserProfile = Omit<UserProfile, 'id' | 'created_at' | 'last_login_at'>
+export type UpdateUserProfile = Partial<Omit<UserProfile, 'id' | 'auth_user_id' | 'created_at'>>
 
 // ==========================================
 // CONSTANTS EXPORTÉES

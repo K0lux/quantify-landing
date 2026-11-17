@@ -8,13 +8,13 @@ interface WaitlistUser {
   full_name: string
   email: string
   phone?: string | null
-  country: string
-  user_type: string
-  status: string
-  position: number
-  referral_code: string
+  country: string | null
+  user_type: string | null
+  status: string | null
+  position: number | null
+  referral_code: string | null
   referred_by?: string | null
-  created_at: string
+  created_at: string | null
 }
 
 export function WaitlistManager({ initialUsers }: { initialUsers: WaitlistUser[] }) {
@@ -118,19 +118,19 @@ export function WaitlistManager({ initialUsers }: { initialUsers: WaitlistUser[]
             {filtered.map((user) => (
               <tr key={user.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3 text-slate-500 font-mono text-xs">
-                  {user.position}
+                  {user.position ?? '—'}
                 </td>
                 <td className="px-4 py-3">
                   <p className="font-semibold text-slate-900">{user.full_name}</p>
                   <p className="text-slate-500 text-xs">{user.email}</p>
                 </td>
-                <td className="px-4 py-3 text-slate-700">{user.country}</td>
+                <td className="px-4 py-3 text-slate-700">{user.country || '—'}</td>
                 <td className="px-4 py-3">
                   <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-full">
-                    {user.user_type}
+                    {user.user_type || '—'}
                   </span>
                 </td>
-                <td className="px-4 py-3 font-mono text-xs text-slate-500">{user.referral_code}</td>
+                <td className="px-4 py-3 font-mono text-xs text-slate-500">{user.referral_code || '—'}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 text-xs rounded-full font-bold ${
                     user.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
@@ -142,7 +142,7 @@ export function WaitlistManager({ initialUsers }: { initialUsers: WaitlistUser[]
                   </span>
                 </td>
                 <td className="px-4 py-3 text-slate-500 text-xs">
-                  {new Date(user.created_at).toLocaleDateString('fr-FR')}
+                    {user.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '—'}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-1">

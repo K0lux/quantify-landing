@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/lib/auth'
 import { DashboardHeader } from '@/components/dashboard/dashboard-header'
-import { DashboardSidebar } from '@/components/dashboard/dashboard-sidebar'
+import { DashboardNavigation } from '@/components/dashboard/dashboard-navigation'
 
 export default async function DashboardLayout({
   children,
@@ -17,14 +17,11 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-slate-50">
       <DashboardHeader />
+      <DashboardNavigation />
       
-      <div className="flex">
-        <DashboardSidebar />
-        
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
-          {children}
-        </main>
-      </div>
+      <main className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        {children}
+      </main>
     </div>
   )
 }

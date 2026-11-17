@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/lib/supabase/types'
 import type { 
@@ -39,7 +40,7 @@ export class SupabaseIntegration {
 
   async getUserProfile(authUserId: string): Promise<SyncResult> {
     try {
-      const supabase = await this.getSupabaseClient()
+      const supabase = this.serverClient ? createAdminSupabaseClient() : await this.getSupabaseClient()
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -67,7 +68,7 @@ export class SupabaseIntegration {
     email: string
   ): Promise<SyncResult> {
     try {
-      const supabase = await this.getSupabaseClient()
+      const supabase = this.serverClient ? createAdminSupabaseClient() : await this.getSupabaseClient()
 
       const { data: waitlistUser } = await supabase
         .from('waitlist')
@@ -96,8 +97,6 @@ export class SupabaseIntegration {
       if (waitlistUser) {
         profileData.waitlist_id = waitlistUser.id
         profileData.phone = waitlistUser.phone || null
-        profileData.full_name = waitlistUser.full_name
-
         const nameParts = (waitlistUser.full_name || '').trim().split(' ')
         profileData.first_name = nameParts[0] || null
         profileData.last_name = nameParts.slice(1).join(' ') || null
@@ -140,12 +139,11 @@ export class SupabaseIntegration {
 
   async updateUserLastLogin(authUserId: string): Promise<void> {
     try {
-      const supabase = await this.getSupabaseClient()
+      const supabase = this.serverClient ? createAdminSupabaseClient() : await this.getSupabaseClient()
       await supabase
         .from('user_profiles')
         .update({
           last_login_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
         })
         .eq('auth_user_id', authUserId)
     } catch (error) {
@@ -155,7 +153,11 @@ export class SupabaseIntegration {
 
   async linkWaitlistUser(authUserId: string, email: string): Promise<SyncResult> {
     try {
-      const supabase = await this.getSupabaseClient()
+      if (!this.serverClient) {
+        return { success: false, error: 'SERVER_REQUIRED', details: 'Waitlist linking is only available on the server' }
+      }
+
+      const supabase = createAdminSupabaseClient()
       
       const { data: waitlistUser, error: findError } = await supabase
         .from('waitlist')
@@ -201,7 +203,7 @@ export class SupabaseIntegration {
 
   async getWaitlistData(email: string): Promise<WaitlistUser | null> {
     try {
-      const supabase = await this.getSupabaseClient()
+      const supabase = this.serverClient ? createAdminSupabaseClient() : await this.getSupabaseClient()
       const { data, error } = await supabase
         .from('waitlist')
         .select('*')

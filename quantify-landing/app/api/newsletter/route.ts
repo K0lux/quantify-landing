@@ -1,7 +1,7 @@
 // ============================================
 // app/api/newsletter/route.ts
 // ============================================
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -16,14 +16,19 @@ export async function POST(request: NextRequest) {
     // Validation
     const validatedData = newsletterSchema.parse(body)
     
-    const supabase = await createServerSupabaseClient()
+    const supabase = createAdminSupabaseClient()
 
     // Vérifier si l'email existe déjà
-    const { data: existing } = await supabase
+    const { data: existing, error: lookupError } = await supabase
       .from('newsletter_subscribers')
       .select('id, status')
       .eq('email', validatedData.email)
-      .single()
+      .maybeSingle()
+
+    if (lookupError) {
+      console.error('Newsletter lookup error:', lookupError)
+      return NextResponse.json({ error: 'Impossible de vérifier cet email.' }, { status: 500 })
+    }
 
     if (existing) {
       if (existing.status === 'active') {
@@ -33,13 +38,18 @@ export async function POST(request: NextRequest) {
         )
       } else {
         // Réactiver l'abonnement si désabonné
-        await supabase
+        const { error: updateError } = await supabase
           .from('newsletter_subscribers')
           .update({ 
             status: 'active',
             subscribed_at: new Date().toISOString()
           })
           .eq('id', existing.id)
+
+        if (updateError) {
+          console.error('Newsletter reactivation error:', updateError)
+          return NextResponse.json({ error: 'Impossible de réactiver cet abonnement.' }, { status: 500 })
+        }
 
         return NextResponse.json({
           success: true,

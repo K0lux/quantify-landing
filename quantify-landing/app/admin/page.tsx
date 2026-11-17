@@ -189,7 +189,7 @@ export default async function AdminDashboardPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-slate-500">
-                    {new Date(user.created_at).toLocaleDateString('fr-FR')}
+                    {user.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '—'}
                   </td>
                 </tr>
               ))}

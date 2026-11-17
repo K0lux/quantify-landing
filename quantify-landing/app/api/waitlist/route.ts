@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth'
 import { 
   waitlistApiSchema,
@@ -31,7 +31,7 @@ class WaitlistService {
   private supabase
 
   constructor() {
-    this.supabase = createServerSupabaseClient()
+    this.supabase = createAdminSupabaseClient()
   }
 
   async createWaitlistEntry(
@@ -50,6 +50,25 @@ class WaitlistService {
           message: 'Cet email est déjà inscrit sur la liste d\'attente',
           code: 'DUPLICATE_EMAIL',
           timestamp: new Date().toISOString(),
+        }
+      }
+
+      if (validatedData.referredBy) {
+        const supabase = await this.supabase
+        const { data: referrer } = await supabase
+          .from('waitlist')
+          .select('id')
+          .eq('referral_code', validatedData.referredBy)
+          .maybeSingle()
+
+        if (!referrer) {
+          return {
+            success: false,
+            error: 'INVALID_REFERRAL_CODE',
+            message: 'Ce code de parrainage est introuvable. Vérifiez le lien reçu.',
+            code: 'INVALID_REFERRAL_CODE',
+            timestamp: new Date().toISOString(),
+          }
         }
       }
 
@@ -81,7 +100,7 @@ class WaitlistService {
       }
 
       if (validatedData.referredBy) {
-        await this.processReferral(validatedData.referredBy, waitlistEntry.id)
+        await this.processReferral(validatedData.referredBy, waitlistEntry.id, waitlistEntry.email)
       }
 
       await this.trackSignupEvent(waitlistEntry, userIP, userAgent)
@@ -112,33 +131,8 @@ class WaitlistService {
 
   async getWaitlistStats(): Promise<WaitlistStatsResponse> {
     try {
-      const supabase = await this.supabase
-      
-      const { data: stats, error } = await supabase
-        .from('waitlist_stats')
-        .select('*')
-        .single()
-
-      if (error) {
-        const manualStats = await this.calculateManualStats()
-        return { success: true, data: manualStats, timestamp: new Date().toISOString() }
-      }
-
-      return {
-        success: true,
-        data: {
-          total_users: stats.total_users ?? 0,
-          pending_users: stats.pending_users ?? 0,
-          approved_users: stats.invited_users ?? 0,
-          converted_users: stats.converted_users ?? 0,
-          referrals_count: stats.total_referrals ?? 0,
-          top_referrers: [],
-          daily_signups: [],
-          conversion_rate: stats.conversion_rate ?? 0,
-          avg_position: stats.avg_position ?? 0,
-        },
-        timestamp: new Date().toISOString(),
-      }
+      const stats = await this.calculateManualStats()
+      return { success: true, data: stats, timestamp: new Date().toISOString() }
 
     } catch (error) {
       console.error('[WaitlistService] Get stats error:', error)
@@ -206,36 +200,48 @@ class WaitlistService {
 
   private async processReferral(
     referralCode: string,
-    refereeId: string
+    refereeId: string,
+    refereeEmail: string
   ): Promise<ReferralReward | null> {
     try {
       const supabase = await this.supabase
       
       const { data: referrer, error } = await supabase
         .from('waitlist')
-        .select('*')
+        .select('id, position')
         .eq('referral_code', referralCode)
         .maybeSingle()
 
       if (error || !referrer) return null
 
-      const newPosition = Math.max(1, referrer.position - 5)
-      
-      await supabase
-        .from('waitlist')
-        .update({ position: newPosition, updated_at: new Date().toISOString() })
-        .eq('id', referrer.id)
-
-      await supabase
+      const { data: reward, error: rewardError } = await supabase
         .from('referrals')
         .insert({
           referrer_id: referrer.id,
-          referee_id: refereeId,
+          referred_email: refereeEmail,
           referral_code: referralCode,
           reward_type: 'position_boost',
           reward_value: 5,
           status: 'completed',
         })
+        .select('id')
+        .single()
+
+      if (rewardError || !reward) {
+        console.error('[WaitlistService] Referral reward insert error:', rewardError)
+        return null
+      }
+
+      const { error: positionError } = await supabase
+        .from('waitlist')
+        .update({ position: Math.max(1, (referrer.position ?? 1) - 5), updated_at: new Date().toISOString() })
+        .eq('id', referrer.id)
+
+      if (positionError) {
+        await supabase.from('referrals').delete().eq('id', reward.id)
+        console.error('[WaitlistService] Referral position update error:', positionError)
+        return null
+      }
 
       return { type: 'position_boost', value: 5, applied: true }
 
@@ -283,11 +289,12 @@ class WaitlistService {
   private async calculateManualStats(): Promise<WaitlistStats> {
     const supabase = await this.supabase
     
-    const [totalResult, pendingResult, approvedResult, convertedResult] = await Promise.all([
+    const [totalResult, pendingResult, approvedResult, convertedResult, referralsResult] = await Promise.all([
       supabase.from('waitlist').select('*', { count: 'exact', head: true }),
       supabase.from('waitlist').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
       supabase.from('waitlist').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
       supabase.from('waitlist').select('*', { count: 'exact', head: true }).eq('status', 'converted'),
+      supabase.from('referrals').select('*', { count: 'exact', head: true }),
     ])
 
     const totalUsers = totalResult.count || 0
@@ -300,7 +307,7 @@ class WaitlistService {
       pending_users: pendingUsers,
       approved_users: approvedUsers,
       converted_users: convertedUsers,
-      referrals_count: 0,
+      referrals_count: referralsResult.count ?? 0,
       top_referrers: [],
       daily_signups: [],
       conversion_rate: totalUsers > 0 ? (convertedUsers / totalUsers) * 100 : 0,
@@ -348,6 +355,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!result.success) {
       const statusCode =
         result.code === 'DUPLICATE_EMAIL' ? 409 :
+        result.code === 'INVALID_REFERRAL_CODE' ? 400 :
         result.code === 'VALIDATION_ERROR' ? 400 : 500
 
       return NextResponse.json(result, { status: statusCode })

@@ -1,5 +1,5 @@
 import { getCurrentUser } from '@/lib/auth'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { SupabaseIntegration } from '@/lib/integrations/auth-supabase'
 import type { 
   UserProfile, 
@@ -144,13 +144,10 @@ export class UserService {
         }
       }
 
-      const supabase = await createServerSupabaseClient()
+      const supabase = createAdminSupabaseClient()
       const { data, error } = await supabase
         .from('user_profiles')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updates)
         .eq('auth_user_id', user.id)
         .select()
         .single()
@@ -161,6 +158,25 @@ export class UserService {
           error: 'PROFILE_UPDATE_FAILED',
           message: `Échec de mise à jour: ${error.message}`,
         }
+      }
+
+      const waitlistUpdates: {
+        full_name?: string
+        phone?: string | null
+        country?: string | null
+        user_type?: string | null
+        updated_at?: string
+      } = { updated_at: new Date().toISOString() }
+      if ('first_name' in updates || 'last_name' in updates) {
+        const firstName = updates.first_name ?? data.first_name ?? ''
+        const lastName = updates.last_name ?? data.last_name ?? ''
+        waitlistUpdates.full_name = [firstName, lastName].filter(Boolean).join(' ')
+      }
+      if ('phone' in updates) waitlistUpdates.phone = updates.phone ?? null
+      if ('country' in updates) waitlistUpdates.country = updates.country ?? null
+      if ('user_type' in updates) waitlistUpdates.user_type = updates.user_type ?? null
+      if (Object.keys(waitlistUpdates).length > 1) {
+        await supabase.from('waitlist').update(waitlistUpdates).eq('auth_user_id', user.id)
       }
 
       return {
@@ -212,12 +228,11 @@ export class UserService {
         },
       }
 
-      const supabase = await createServerSupabaseClient()
+      const supabase = createAdminSupabaseClient()
       const { data, error } = await supabase
         .from('user_profiles')
         .update({
           preferences: updatedPreferences,
-          updated_at: new Date().toISOString(),
         })
         .eq('auth_user_id', user.id)
         .select('preferences')
@@ -260,7 +275,7 @@ export class UserService {
         }
       }
 
-      const supabase = await createServerSupabaseClient()
+      const supabase = createAdminSupabaseClient()
       const { data, error } = await supabase
         .from('user_profiles')
         .select('preferences')
@@ -303,12 +318,11 @@ export class UserService {
         }
       }
 
-      const supabase = await createServerSupabaseClient()
+      const supabase = createAdminSupabaseClient()
       const { error } = await supabase
         .from('user_profiles')
         .update({
           onboarding_completed: true,
-          updated_at: new Date().toISOString(),
         })
         .eq('auth_user_id', user.id)
 
@@ -339,7 +353,7 @@ export class UserService {
 
   private async getWaitlistDataById(waitlistId: string): Promise<APIResponse<WaitlistUser>> {
     try {
-      const supabase = await createServerSupabaseClient()
+      const supabase = createAdminSupabaseClient()
       const { data, error } = await supabase
         .from('waitlist')
         .select('*')
@@ -394,13 +408,42 @@ export class UserService {
         }
       }
 
-      const supabase = await createServerSupabaseClient()
-      
-      await Promise.all([
-        supabase.from('user_profiles').delete().eq('auth_user_id', user.id),
-        supabase.from('analytics').delete().eq('user_id', user.id),
-        supabase.from('user_sessions').delete().eq('auth_user_id', user.id),
-      ])
+      const supabase = createAdminSupabaseClient()
+      const { data: waitlistUser } = await supabase
+        .from('waitlist')
+        .select('id, referral_code, email')
+        .eq('auth_user_id', user.id)
+        .maybeSingle()
+
+      if (waitlistUser) {
+        const { error: unlinkError } = waitlistUser.referral_code
+          ? await supabase
+              .from('waitlist')
+              .update({ referred_by: null })
+              .eq('referred_by', waitlistUser.referral_code)
+          : { error: null }
+
+        if (unlinkError) throw unlinkError
+
+        const cleanupResults = await Promise.all([
+          supabase.from('user_preferences').delete().eq('waitlist_id', waitlistUser.id),
+          supabase.from('analytics').delete().eq('user_id', waitlistUser.id),
+          supabase.from('referrals').delete().eq('referrer_id', waitlistUser.id),
+          supabase.from('referrals').delete().eq('referred_email', waitlistUser.email),
+          supabase.from('user_profiles').delete().eq('auth_user_id', user.id),
+        ])
+        const cleanupError = cleanupResults.find((result) => result.error)?.error
+        if (cleanupError) throw cleanupError
+
+        const { error: waitlistDeleteError } = await supabase.from('waitlist').delete().eq('id', waitlistUser.id)
+        if (waitlistDeleteError) throw waitlistDeleteError
+      } else {
+        const { error: profileDeleteError } = await supabase.from('user_profiles').delete().eq('auth_user_id', user.id)
+        if (profileDeleteError) throw profileDeleteError
+      }
+
+      const { error: authDeleteError } = await supabase.auth.admin.deleteUser(user.id)
+      if (authDeleteError) throw authDeleteError
 
       return {
         success: true,

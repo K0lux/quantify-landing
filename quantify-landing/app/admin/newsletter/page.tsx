@@ -11,7 +11,7 @@ async function getNewsletterData() {
 
   const { data: subscribers, count } = await supabase
     .from('newsletter_subscribers')
-    .select('*', { count: 'exact' })
+    .select('id, email, subscribed_at, status, source', { count: 'exact' })
     .order('subscribed_at', { ascending: false })
     .limit(50)
 
@@ -21,10 +21,7 @@ async function getNewsletterData() {
     .eq('status', 'active')
 
   return {
-    subscribers: (subscribers ?? []).map((subscriber) => ({
-      ...subscriber,
-      subscribed_at: subscriber.created_at,
-    })),
+    subscribers: subscribers ?? [],
     total: count ?? 0,
     active: active ?? 0,
   }

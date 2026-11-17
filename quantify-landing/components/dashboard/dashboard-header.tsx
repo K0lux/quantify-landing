@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Bell, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { QWordmark } from '@/components/brand/QMark'
 
@@ -16,21 +16,18 @@ export function DashboardHeader() {
             <QWordmark height={27} variant="dark" />
           </Link>
 
-          <div className="flex items-center gap-4">
-            <button className="relative p-2 text-slate-600 hover:text-slate-900 transition-colors">
-              <Bell className="w-6 h-6" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-            </button>
-
+          <div className="flex items-center gap-3">
             {user && (
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-gradient-to-br from-[#FF8C42] to-[#E04400] rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <div className="hidden max-w-48 truncate text-sm text-slate-600 sm:block">{user.email}</div>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-100 text-sm font-semibold text-orange-800" aria-hidden="true">
                   {(user.email?.charAt(0) || '?').toUpperCase()}
                 </div>
                 <button
                   onClick={signOut}
-                  className="p-2 text-slate-500 hover:text-slate-900 transition-colors"
+                  className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
                   title="Se déconnecter"
+                  aria-label="Se déconnecter"
                 >
                   <LogOut className="w-5 h-5" />
                 </button>

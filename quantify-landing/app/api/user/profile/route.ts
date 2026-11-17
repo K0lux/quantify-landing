@@ -5,12 +5,11 @@ import { validateWithErrors } from '@/lib/validation/schemas'
 import { z } from 'zod'
 
 const updateProfileSchema = z.object({
-  first_name: z.string().min(1, 'Prénom requis').max(50, 'Prénom trop long').optional(),
-  last_name: z.string().min(1, 'Nom requis').max(50, 'Nom trop long').optional(),
-  phone: z.string().regex(/^\+[1-9]\d{1,14}$/, 'Format téléphone invalide').optional(),
-  city: z.string().max(100, 'Nom de ville trop long').optional(),
+  first_name: z.string().trim().min(1, 'Prénom requis').max(50, 'Prénom trop long').optional(),
+  last_name: z.string().trim().max(80, 'Nom trop long').optional(),
+  phone: z.string().trim().max(30).regex(/^\+?[0-9 ()-]{7,20}$/).or(z.literal('')).optional(),
   country: z.enum(['TG', 'BF', 'CI', 'ML', 'NE', 'SN', 'BJ', 'GW']).optional(),
-  user_type: z.enum(['particulier', 'professionnel', 'institution', 'utility', 'admin']).optional(),
+  user_type: z.enum(['particulier', 'professionnel', 'institution', 'utility']).optional(),
 })
 
 const updatePreferencesSchema = z.object({
@@ -101,7 +100,10 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       }, { status: 400 })
     }
 
-    const result = await updateUserProfile(validation.data)
+    const result = await updateUserProfile({
+      ...validation.data,
+      ...(validation.data.phone !== undefined ? { phone: validation.data.phone || null } : {}),
+    })
 
     return NextResponse.json(result, { status: result.success ? 200 : 400 })
 

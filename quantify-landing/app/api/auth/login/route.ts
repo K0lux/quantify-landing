@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { validateWithErrors } from '@/lib/validation/schemas'
 
@@ -65,11 +66,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Update last login
-    await supabase
+    await createAdminSupabaseClient()
       .from('user_profiles')
       .update({
         last_login_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
       })
       .eq('auth_user_id', data.user.id)
 

@@ -6,9 +6,9 @@ import { Send, Mail, Loader2, CheckCircle, AlertCircle, Search, Trash2, Users } 
 interface Subscriber {
   id: string
   email: string
-  status: string
+  status: string | null
   source: string | null
-  subscribed_at: string
+  subscribed_at: string | null
 }
 
 export function NewsletterManager({
@@ -183,16 +183,16 @@ export function NewsletterManager({
               {filtered.map((sub) => (
                 <tr key={sub.id} className="hover:bg-slate-50">
                   <td className="px-4 py-3 font-medium text-slate-900">{sub.email}</td>
-                  <td className="px-4 py-3 text-slate-500">{sub.source}</td>
+                  <td className="px-4 py-3 text-slate-500">{sub.source || '—'}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 text-xs rounded-full font-bold ${
                       sub.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'
                     }`}>
-                      {sub.status === 'active' ? 'Actif' : 'Inactif'}
+                      {sub.status === 'active' ? 'Actif' : sub.status ? 'Inactif' : 'Inconnu'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-slate-500 text-xs">
-                    {new Date(sub.subscribed_at).toLocaleDateString('fr-FR')}
+                    {sub.subscribed_at ? new Date(sub.subscribed_at).toLocaleDateString('fr-FR') : '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button

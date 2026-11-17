@@ -1,24 +1,25 @@
 // ============================================
 // app/api/contact/route.ts
 // ============================================
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { contactFormSchema } from '@/lib/validation/schemas'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { name, email, phone, subject, message, type } = body
+    const body = await request.json().catch(() => null)
+    const validation = contactFormSchema.safeParse(body)
 
-    if (!name || !email || !subject || !message) {
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Tous les champs requis doivent être remplis' },
+        { error: 'Vérifiez les champs du formulaire.', details: validation.error.flatten() },
         { status: 400 }
       )
     }
 
-    const supabase = await createServerSupabaseClient()
+    const supabase = createAdminSupabaseClient()
+    const { name, email, phone, company, subject, message, type } = validation.data
 
-    // Insérer le message
     const { error: insertError } = await supabase
       .from('contact_messages')
       .insert({
@@ -26,8 +27,8 @@ export async function POST(request: NextRequest) {
         email,
         phone,
         subject,
-        message,
-        type: type || 'general',
+        message: company ? `Entreprise : ${company}\n\n${message}` : message,
+        type,
         status: 'new'
       })
 
