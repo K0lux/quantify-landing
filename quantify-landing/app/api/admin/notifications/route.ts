@@ -3,13 +3,17 @@ import { isAdmin } from '@/lib/auth'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export async function POST(request: NextRequest) {
   const admin = await isAdmin()
   if (!admin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
+
+  const resendApiKey = process.env.RESEND_API_KEY
+  if (!resendApiKey) {
+    return NextResponse.json({ error: 'Email service is not configured' }, { status: 500 })
+  }
+  const resend = new Resend(resendApiKey)
 
   const { audience, title, message } = await request.json()
 
