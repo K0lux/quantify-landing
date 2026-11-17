@@ -2,6 +2,8 @@
 // lib/supabase/types.ts - TYPES SUPABASE COMPLETS
 // ============================================
 
+import type { JsonValue, UserPreferences } from '@/types'
+
 // ==========================================
 // TYPES HELPERS POUR SUPABASE
 // ==========================================
@@ -110,11 +112,8 @@ export type ContactMessageWithAssignee = Tables<'contact_messages'> & {
 
 // Types pour les vues
 export type WaitlistStatsView = Database['public']['Views']['waitlist_stats']['Row']
-export type TopReferrersView = Database['public']['Views']['top_referrers']['Row']
-export type AnalyticsDashboardView = Database['public']['Views']['analytics_dashboard']['Row']
 
 // Types pour les fonctions
-export type RealtimeStatsFunction = Database['public']['Functions']['get_realtime_stats']['Returns']
 export type CalculatePositionFunction = Database['public']['Functions']['calculate_waitlist_position']['Returns']
 
 // ==========================================
@@ -162,6 +161,40 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+type ContactMessageRow = {
+  id: string
+  name: string
+  email: string
+  phone: string | null
+  company: string | null
+  subject: string
+  message: string
+  type: 'general' | 'investment' | 'partnership' | 'support' | 'media'
+  status: 'new' | 'in_progress' | 'resolved' | 'closed' | 'spam'
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  assigned_to: string | null
+  tags: string[]
+  response_sent: boolean
+  response_sent_at: string | null
+  metadata: Json | null
+  created_at: string
+  updated_at: string
+}
+
+type AnalyticsRow = {
+  id: string
+  user_id: string | null
+  session_id: string | null
+  event_type: string
+  event_name: string
+  properties: Json
+  user_agent: string | null
+  ip_address: string | null
+  country: string | null
+  referrer: string | null
+  created_at: string
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -179,7 +212,7 @@ export type Database = {
           referral_code: string
           referred_by: string | null
           position: number
-          status: 'pending' | 'invited' | 'converted' | 'rejected'
+          status: 'pending' | 'approved' | 'invited' | 'converted' | 'rejected'
           metadata: Json | null
           utm_source: string | null
           utm_medium: string | null
@@ -204,7 +237,7 @@ export type Database = {
           referral_code?: string
           referred_by?: string | null
           position?: number
-          status?: 'pending' | 'invited' | 'converted' | 'rejected'
+          status?: 'pending' | 'approved' | 'invited' | 'converted' | 'rejected'
           metadata?: Json | null
           utm_source?: string | null
           utm_medium?: string | null
@@ -229,7 +262,7 @@ export type Database = {
           referral_code?: string
           referred_by?: string | null
           position?: number
-          status?: 'pending' | 'invited' | 'converted' | 'rejected'
+          status?: 'pending' | 'approved' | 'invited' | 'converted' | 'rejected'
           metadata?: Json | null
           utm_source?: string | null
           utm_medium?: string | null
@@ -254,17 +287,21 @@ export type Database = {
           email: string
           phone: string | null
           full_name: string | null
+          first_name: string | null
+          last_name: string | null
           avatar_url: string | null
           country: string | null
           city: string | null
           timezone: string | null
           language: string
-          user_type: 'particulier' | 'professionnel' | 'institution' | 'utility'
+          user_type: 'particulier' | 'professionnel' | 'institution' | 'utility' | 'admin'
+          subscription_plan: 'free' | 'premium' | 'enterprise'
+          subscription_status: 'active' | 'inactive' | 'cancelled' | 'past_due'
           company_name: string | null
           job_title: string | null
           onboarding_completed: boolean
-          preferences: Json | null
-          metadata: Json | null
+          preferences: UserPreferences | null
+          metadata: JsonValue | null
           created_at: string
           updated_at: string
           last_login_at: string | null
@@ -279,17 +316,21 @@ export type Database = {
           email: string
           phone?: string | null
           full_name?: string | null
+          first_name?: string | null
+          last_name?: string | null
           avatar_url?: string | null
           country?: string | null
           city?: string | null
           timezone?: string | null
           language?: string
-          user_type?: 'particulier' | 'professionnel' | 'institution' | 'utility'
+          user_type?: 'particulier' | 'professionnel' | 'institution' | 'utility' | 'admin'
+          subscription_plan?: 'free' | 'premium' | 'enterprise'
+          subscription_status?: 'active' | 'inactive' | 'cancelled' | 'past_due'
           company_name?: string | null
           job_title?: string | null
           onboarding_completed?: boolean
-          preferences?: Json | null
-          metadata?: Json | null
+          preferences?: UserPreferences | null
+          metadata?: JsonValue | null
           created_at?: string
           updated_at?: string
           last_login_at?: string | null
@@ -304,17 +345,21 @@ export type Database = {
           email?: string
           phone?: string | null
           full_name?: string | null
+          first_name?: string | null
+          last_name?: string | null
           avatar_url?: string | null
           country?: string | null
           city?: string | null
           timezone?: string | null
           language?: string
-          user_type?: 'particulier' | 'professionnel' | 'institution' | 'utility'
+          user_type?: 'particulier' | 'professionnel' | 'institution' | 'utility' | 'admin'
+          subscription_plan?: 'free' | 'premium' | 'enterprise'
+          subscription_status?: 'active' | 'inactive' | 'cancelled' | 'past_due'
           company_name?: string | null
           job_title?: string | null
           onboarding_completed?: boolean
-          preferences?: Json | null
-          metadata?: Json | null
+          preferences?: UserPreferences | null
+          metadata?: JsonValue | null
           created_at?: string
           updated_at?: string
           last_login_at?: string | null
@@ -624,6 +669,74 @@ export type Database = {
             referencedColumns: ["id"]
           }
         ]
+      }
+      landing_content: {
+        Row: {
+          id: string
+          section: string
+          key: string
+          value: string | null
+          type: 'text' | 'html' | 'json' | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          section: string
+          key: string
+          value?: string | null
+          type?: 'text' | 'html' | 'json' | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          section?: string
+          key?: string
+          value?: string | null
+          type?: 'text' | 'html' | 'json' | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      admin_notifications: {
+        Row: {
+          id: string
+          title: string
+          message: string
+          audience: 'all' | 'pending' | 'invited' | null
+          recipients_count: number | null
+          sent_at: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          message: string
+          audience?: 'all' | 'pending' | 'invited' | null
+          recipients_count?: number | null
+          sent_at?: string | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          message?: string
+          audience?: 'all' | 'pending' | 'invited' | null
+          recipients_count?: number | null
+          sent_at?: string | null
+        }
+        Relationships: []
+      }
+      contact_messages: {
+        Row: ContactMessageRow
+        Insert: Pick<ContactMessageRow, 'name' | 'email' | 'subject' | 'message'> &
+          Partial<Omit<ContactMessageRow, 'id' | 'name' | 'email' | 'subject' | 'message'>>
+        Update: Partial<ContactMessageRow>
+        Relationships: []
+      }
+      analytics: {
+        Row: AnalyticsRow
+        Insert: Pick<AnalyticsRow, 'event_type' | 'event_name'> &
+          Partial<Omit<AnalyticsRow, 'id' | 'event_type' | 'event_name'>>
+        Update: Partial<AnalyticsRow>
+        Relationships: []
       }
     }
     Views: {

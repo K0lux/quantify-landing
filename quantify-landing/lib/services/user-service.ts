@@ -6,6 +6,7 @@ import type {
   WaitlistUser, 
   APIResponse,
   UserPreferences,
+  UserPreferencesPatch,
 } from '@/types'
 import { DEFAULT_USER_PREFERENCES } from '@/types'
 import { cache } from 'react'
@@ -42,11 +43,9 @@ export interface UserServiceOptions {
 }
 
 export class UserService {
-  private supabase
   private integration: SupabaseIntegration
 
   constructor() {
-    this.supabase = createServerSupabaseClient()
     this.integration = new SupabaseIntegration(true)
   }
 
@@ -145,7 +144,7 @@ export class UserService {
         }
       }
 
-      const supabase = await this.supabase
+      const supabase = await createServerSupabaseClient()
       const { data, error } = await supabase
         .from('user_profiles')
         .update({
@@ -181,7 +180,7 @@ export class UserService {
     }
   }
 
-  async updateUserPreferences(preferences: Partial<UserPreferences>): Promise<APIResponse<UserPreferences>> {
+  async updateUserPreferences(preferences: UserPreferencesPatch): Promise<APIResponse<UserPreferences>> {
     try {
       const user = await getCurrentUser()
       
@@ -199,12 +198,21 @@ export class UserService {
         return currentResult
       }
 
-      const updatedPreferences = {
-        ...currentResult.data,
+      const currentPreferences = currentResult.data ?? DEFAULT_USER_PREFERENCES
+      const updatedPreferences: UserPreferences = {
+        ...currentPreferences,
         ...preferences,
+        notifications: {
+          ...currentPreferences.notifications,
+          ...preferences.notifications,
+        },
+        privacy: {
+          ...currentPreferences.privacy,
+          ...preferences.privacy,
+        },
       }
 
-      const supabase = await this.supabase
+      const supabase = await createServerSupabaseClient()
       const { data, error } = await supabase
         .from('user_profiles')
         .update({
@@ -225,7 +233,7 @@ export class UserService {
 
       return {
         success: true,
-        data: data.preferences as UserPreferences,
+        data: data.preferences ?? updatedPreferences,
         message: 'Préférences mises à jour avec succès',
       }
 
@@ -252,7 +260,7 @@ export class UserService {
         }
       }
 
-      const supabase = await this.supabase
+      const supabase = await createServerSupabaseClient()
       const { data, error } = await supabase
         .from('user_profiles')
         .select('preferences')
@@ -295,7 +303,7 @@ export class UserService {
         }
       }
 
-      const supabase = await this.supabase
+      const supabase = await createServerSupabaseClient()
       const { error } = await supabase
         .from('user_profiles')
         .update({
@@ -331,7 +339,7 @@ export class UserService {
 
   private async getWaitlistDataById(waitlistId: string): Promise<APIResponse<WaitlistUser>> {
     try {
-      const supabase = await this.supabase
+      const supabase = await createServerSupabaseClient()
       const { data, error } = await supabase
         .from('waitlist')
         .select('*')
@@ -386,7 +394,7 @@ export class UserService {
         }
       }
 
-      const supabase = await this.supabase
+      const supabase = await createServerSupabaseClient()
       
       await Promise.all([
         supabase.from('user_profiles').delete().eq('auth_user_id', user.id),
@@ -420,13 +428,13 @@ export const getCurrentUserData = cache(
   }
 )
 
-export const updateUserProfile = (updates: Partial<UserProfile>) => 
+export const updateUserProfile = (updates: Partial<UserProfile>) =>
   userService.updateUserProfile(updates)
 
-export const updateUserPreferences = (preferences: Partial<UserPreferences>) => 
+export const updateUserPreferences = (preferences: UserPreferencesPatch) =>
   userService.updateUserPreferences(preferences)
 
-export const getUserPreferences = () => 
+export const getUserPreferences = () =>
   userService.getUserPreferences()
 
 export const completeOnboarding = () => 

@@ -21,7 +21,10 @@ async function getNewsletterData() {
     .eq('status', 'active')
 
   return {
-    subscribers: subscribers ?? [],
+    subscribers: (subscribers ?? []).map((subscriber) => ({
+      ...subscriber,
+      subscribed_at: subscriber.created_at,
+    })),
     total: count ?? 0,
     active: active ?? 0,
   }

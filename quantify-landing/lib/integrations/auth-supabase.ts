@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createClient } from '@/lib/supabase/client'
+import type { Database } from '@/lib/supabase/types'
 import type { 
   WaitlistUser,
   UserProfile,
@@ -26,17 +27,19 @@ export interface SyncResult {
   fromWaitlist?: boolean
 }
 export class SupabaseIntegration {
-  private supabase
+  private serverClient: boolean
 
   constructor(serverClient = false) {
-    this.supabase = serverClient 
-      ? createServerSupabaseClient()
-      : createClient()
+    this.serverClient = serverClient
+  }
+
+  private getSupabaseClient() {
+    return this.serverClient ? createServerSupabaseClient() : createClient()
   }
 
   async getUserProfile(authUserId: string): Promise<SyncResult> {
     try {
-      const supabase = await this.supabase
+      const supabase = await this.getSupabaseClient()
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -64,7 +67,7 @@ export class SupabaseIntegration {
     email: string
   ): Promise<SyncResult> {
     try {
-      const supabase = await this.supabase
+      const supabase = await this.getSupabaseClient()
 
       const { data: waitlistUser } = await supabase
         .from('waitlist')
@@ -72,7 +75,7 @@ export class SupabaseIntegration {
         .eq('email', email.toLowerCase())
         .single()
 
-      const profileData: Record<string, unknown> = {
+      const profileData: Database['public']['Tables']['user_profiles']['Insert'] = {
         auth_user_id: authUserId,
         email,
         country: waitlistUser?.country || 'TG',
@@ -137,7 +140,7 @@ export class SupabaseIntegration {
 
   async updateUserLastLogin(authUserId: string): Promise<void> {
     try {
-      const supabase = await this.supabase
+      const supabase = await this.getSupabaseClient()
       await supabase
         .from('user_profiles')
         .update({
@@ -152,7 +155,7 @@ export class SupabaseIntegration {
 
   async linkWaitlistUser(authUserId: string, email: string): Promise<SyncResult> {
     try {
-      const supabase = await this.supabase
+      const supabase = await this.getSupabaseClient()
       
       const { data: waitlistUser, error: findError } = await supabase
         .from('waitlist')
@@ -198,7 +201,7 @@ export class SupabaseIntegration {
 
   async getWaitlistData(email: string): Promise<WaitlistUser | null> {
     try {
-      const supabase = await this.supabase
+      const supabase = await this.getSupabaseClient()
       const { data, error } = await supabase
         .from('waitlist')
         .select('*')

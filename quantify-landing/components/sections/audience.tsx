@@ -72,7 +72,7 @@ export function AudienceSection() {
         <FadeIn>
           <div className="text-center max-w-2xl mx-auto mb-10">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3">
-              Pour <span className="text-orange-500">tous</span> ceux qui gèrent l'énergie
+              Pour <span className="text-orange-500">tous</span> ceux qui gèrent l&apos;énergie
             </h2>
             <p className="text-base text-slate-600">
               Du simple foyer aux grands ensembles, une seule plateforme.

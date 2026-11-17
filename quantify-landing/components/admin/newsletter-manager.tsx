@@ -7,7 +7,7 @@ interface Subscriber {
   id: string
   email: string
   status: string
-  source: string
+  source: string | null
   subscribed_at: string
 }
 

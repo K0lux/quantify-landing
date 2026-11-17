@@ -25,7 +25,10 @@ export async function POST(request: NextRequest) {
     section,
     key: item.key,
     value: item.value,
-    type: item.type || 'text',
+    type: (item.type === 'html' || item.type === 'json' ? item.type : 'text') as
+      | 'text'
+      | 'html'
+      | 'json',
     updated_at: new Date().toISOString(),
   }))
 

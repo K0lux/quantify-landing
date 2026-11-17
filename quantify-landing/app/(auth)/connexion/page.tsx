@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { LoginForm } from '@/components/auth/login-form'
 import { QWordmark } from '@/components/brand/QMark'
 
@@ -23,7 +24,9 @@ export default function ConnexionPage() {
       </div>
 
       <div className="p-8">
-        <LoginForm />
+        <Suspense fallback={<p className="text-center text-sm text-slate-500">Chargement du formulaire…</p>}>
+          <LoginForm />
+        </Suspense>
       </div>
 
       <div className="bg-slate-50 px-8 py-6 border-t border-slate-200">

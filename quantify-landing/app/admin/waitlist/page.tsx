@@ -31,7 +31,10 @@ async function getWaitlistData() {
     .eq('status', 'converted')
 
   return {
-    users: users ?? [],
+    users: (users ?? []).map((user) => ({
+      ...user,
+      full_name: user.full_name ?? user.email,
+    })),
     total: count ?? 0,
     pending: pending ?? 0,
     invited: invited ?? 0,

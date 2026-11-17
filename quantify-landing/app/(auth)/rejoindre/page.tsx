@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { ArrowLeft, UserPlus } from 'lucide-react'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { WaitlistForm } from '@/components/waitlist/waitlist-form'
 import { WaitlistCounter } from '@/components/waitlist/waitlist-counter'
 import { QWordmark } from '@/components/brand/QMark'
@@ -27,7 +28,9 @@ export default function Rejoindre() {
 
       {/* Form */}
       <div className="p-4 sm:p-8">
-        <WaitlistForm compact className="border-0 p-0 shadow-none" />
+        <Suspense fallback={<p className="text-center text-sm text-slate-500">Chargement du formulaire…</p>}>
+          <WaitlistForm compact className="border-0 p-0 shadow-none" />
+        </Suspense>
       </div>
 
       {/* Footer */}

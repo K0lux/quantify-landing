@@ -7,13 +7,13 @@ interface WaitlistUser {
   id: string
   full_name: string
   email: string
-  phone?: string
+  phone?: string | null
   country: string
   user_type: string
   status: string
   position: number
   referral_code: string
-  referred_by?: string
+  referred_by?: string | null
   created_at: string
 }
 

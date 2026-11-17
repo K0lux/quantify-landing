@@ -53,6 +53,18 @@ export type UserType = typeof USER_TYPES[keyof typeof USER_TYPES]
 export type WaitlistStatus = typeof WAITLIST_STATUS[keyof typeof WAITLIST_STATUS]
 export type SubscriptionPlan = typeof SUBSCRIPTION_PLANS[keyof typeof SUBSCRIPTION_PLANS]
 export type Country = typeof COUNTRIES[keyof typeof COUNTRIES]
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: JsonValue | undefined }
+  | JsonValue[]
+
+export type UserPreferencesPatch = Partial<Omit<UserPreferences, 'notifications' | 'privacy'>> & {
+  notifications?: Partial<UserPreferences['notifications']>
+  privacy?: Partial<UserPreferences['privacy']>
+}
 
 // ==========================================
 // INTERFACES PRINCIPALES
@@ -67,13 +79,13 @@ export interface WaitlistUser {
   email: Email
   phone: PhoneNumber | null
   full_name: string | null
-  country: Country
-  user_type: UserType
+  country: string
+  user_type: Exclude<UserType, 'admin'>
   referral_code: ReferralCode
   referred_by: ReferralCode | null
   position: number
   status: WaitlistStatus
-  metadata: Record<string, unknown> | null
+  metadata: JsonValue | null
   created_at: ISODateString
   updated_at: ISODateString
   
@@ -95,14 +107,14 @@ export interface UserProfile {
   first_name: string | null
   last_name: string | null
   avatar_url: string | null
-  country: Country
+  country: string | null
   city: string | null
   user_type: UserType
   subscription_plan: SubscriptionPlan
   subscription_status: 'active' | 'inactive' | 'cancelled' | 'past_due'
   onboarding_completed: boolean
-  preferences: UserPreferences
-  metadata: Record<string, unknown> | null
+  preferences: UserPreferences | null
+  metadata: JsonValue | null
   created_at: ISODateString
   updated_at: ISODateString
   last_login_at: ISODateString | null

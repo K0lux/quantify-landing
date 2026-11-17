@@ -9,8 +9,8 @@ import type {
   WaitlistUser,
   APIResponse,
   WaitlistStats,
-  WaitlistFormInput
 } from '@/types'
+import type { WaitlistFormOutput } from '@/lib/validation/schemas'
 import { nanoid } from 'nanoid'
 
 interface WaitlistCreateResponse extends APIResponse<WaitlistUser> {
@@ -35,7 +35,7 @@ class WaitlistService {
   }
 
   async createWaitlistEntry(
-    formData: WaitlistFormInput,
+    formData: WaitlistFormOutput,
     userIP?: string,
     userAgent?: string
   ): Promise<WaitlistCreateResponse> {
@@ -56,19 +56,12 @@ class WaitlistService {
       const referralCode = await this.generateUniqueReferralCode()
       const position = await this.calculateNextPosition()
 
-      if (validatedData.referredBy) {
-        await this.processReferral(
-          validatedData.referredBy,
-          validatedData.email
-        )
-      }
-
       const insertData = {
         email: validatedData.email,
         phone: validatedData.phone || null,
         full_name: validatedData.fullName,
         country: validatedData.country,
-        user_type: validatedData.userType,
+        user_type: validatedData.userType as WaitlistUser['user_type'],
         referral_code: referralCode,
         referred_by: validatedData.referredBy || null,
         status: 'pending' as const,
@@ -85,6 +78,10 @@ class WaitlistService {
       if (insertError) {
         console.error('[WaitlistService] Insert error:', insertError)
         throw new Error(`Database insertion failed: ${insertError.message}`)
+      }
+
+      if (validatedData.referredBy) {
+        await this.processReferral(validatedData.referredBy, waitlistEntry.id)
       }
 
       await this.trackSignupEvent(waitlistEntry, userIP, userAgent)
@@ -127,7 +124,21 @@ class WaitlistService {
         return { success: true, data: manualStats, timestamp: new Date().toISOString() }
       }
 
-      return { success: true, data: stats, timestamp: new Date().toISOString() }
+      return {
+        success: true,
+        data: {
+          total_users: stats.total_users ?? 0,
+          pending_users: stats.pending_users ?? 0,
+          approved_users: stats.invited_users ?? 0,
+          converted_users: stats.converted_users ?? 0,
+          referrals_count: stats.total_referrals ?? 0,
+          top_referrers: [],
+          daily_signups: [],
+          conversion_rate: stats.conversion_rate ?? 0,
+          avg_position: stats.avg_position ?? 0,
+        },
+        timestamp: new Date().toISOString(),
+      }
 
     } catch (error) {
       console.error('[WaitlistService] Get stats error:', error)
@@ -195,7 +206,7 @@ class WaitlistService {
 
   private async processReferral(
     referralCode: string,
-    newUserEmail: string
+    refereeId: string
   ): Promise<ReferralReward | null> {
     try {
       const supabase = await this.supabase
@@ -219,7 +230,7 @@ class WaitlistService {
         .from('referrals')
         .insert({
           referrer_id: referrer.id,
-          referred_email: newUserEmail,
+          referee_id: refereeId,
           referral_code: referralCode,
           reward_type: 'position_boost',
           reward_value: 5,
@@ -328,7 +339,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const userAgent = request.headers.get('user-agent') || 'unknown'
 
     const waitlistService = new WaitlistService()
-    const result = await waitlistService.createWaitlistEntry(validData, userIP, userAgent)
+    const waitlistInput: WaitlistFormOutput = {
+      ...validData,
+      acceptMarketing: validData.acceptMarketing ?? false,
+    }
+    const result = await waitlistService.createWaitlistEntry(waitlistInput, userIP, userAgent)
 
     if (!result.success) {
       const statusCode =

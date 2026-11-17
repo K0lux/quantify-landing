@@ -168,7 +168,8 @@ export const waitlistFormSchema = z.object({
   acceptMarketing: z.boolean().optional().default(false)
 }).strict()
 
-export type WaitlistFormInput = z.infer<typeof waitlistFormSchema>
+export type WaitlistFormInput = z.input<typeof waitlistFormSchema>
+export type WaitlistFormOutput = z.output<typeof waitlistFormSchema>
 
 /**
  * Schéma pour le formulaire de contact
@@ -467,23 +468,19 @@ export function validateWithErrors<T>(
   try {
     const result = schema.parse(data)
     return { success: true, data: result }
-  } catch (error: any) {
-    // ✅ Vérification plus robuste (évite "undefined.map")
-    if (error?.errors && Array.isArray(error.errors)) {
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
       return {
         success: false,
-        errors: error.errors.map(
-          (err: any) =>
-            `${Array.isArray(err.path) ? err.path.join('.') : 'inconnu'}: ${
-              err.message || 'Erreur inconnue'
-            }`
+        errors: error.issues.map((issue) =>
+          `${issue.path.length > 0 ? issue.path.join('.') : 'inconnu'}: ${issue.message}`
         ),
       }
     }
 
     return {
       success: false,
-      errors: [error?.message || 'Erreur de validation inconnue'],
+      errors: [error instanceof Error ? error.message : 'Erreur de validation inconnue'],
     }
   }
 }

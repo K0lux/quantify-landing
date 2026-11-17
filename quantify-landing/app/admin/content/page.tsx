@@ -14,7 +14,12 @@ async function getContent() {
     .select('*')
     .order('section')
 
-  return data ?? []
+  return (data ?? []).map((item) => ({
+    ...item,
+    value: item.value ?? '',
+    type: item.type ?? 'text',
+    updated_at: item.updated_at ?? undefined,
+  }))
 }
 
 export default async function AdminContentPage() {

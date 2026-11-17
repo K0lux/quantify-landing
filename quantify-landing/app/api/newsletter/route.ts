@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     // Validation
     const validatedData = newsletterSchema.parse(body)
     
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
 
     // Vérifier si l'email existe déjà
     const { data: existing } = await supabase
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     //if (error.name === 'ZodError') {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Email invalide', details: error.errors },
+        { error: 'Email invalide', details: error.issues },
         { status: 400 }
       )
     }

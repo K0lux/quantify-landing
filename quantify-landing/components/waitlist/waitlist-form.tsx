@@ -10,7 +10,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { 
   waitlistFormSchema, 
-  type WaitlistFormInput 
+  type WaitlistFormInput,
+  type WaitlistFormOutput,
 } from '@/lib/validation/schemas'
 import { 
   USER_TYPES, 
@@ -109,7 +110,7 @@ export function WaitlistForm({
     reset,
     setValue,
     clearErrors
-  } = useForm<WaitlistFormInput>({
+  } = useForm<WaitlistFormInput, unknown, WaitlistFormOutput>({
     resolver: zodResolver(waitlistFormSchema),
     defaultValues: {
       email: '',
@@ -131,7 +132,7 @@ export function WaitlistForm({
   /**
    * Soumission du formulaire
    */
-  const onSubmit: SubmitHandler<WaitlistFormInput> = useCallback(async (data) => {
+  const onSubmit: SubmitHandler<WaitlistFormOutput> = useCallback(async (data) => {
     try {
       setSubmissionState({
         isLoading: true,

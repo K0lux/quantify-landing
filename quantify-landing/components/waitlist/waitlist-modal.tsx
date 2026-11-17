@@ -4,6 +4,7 @@
 'use client'
 
 import { X } from 'lucide-react'
+import { Suspense } from 'react'
 import { WaitlistForm } from '@/components/waitlist/waitlist-form'
 import { QWordmark } from '@/components/brand/QMark'
 
@@ -37,7 +38,9 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
           </p>
         </div>
 
-        <WaitlistForm compact className="border-0 p-0 shadow-none" onSuccess={() => setTimeout(onClose, 2000)} />
+        <Suspense fallback={null}>
+          <WaitlistForm compact className="border-0 p-0 shadow-none" onSuccess={() => setTimeout(onClose, 2000)} />
+        </Suspense>
       </div>
     </div>
   )
