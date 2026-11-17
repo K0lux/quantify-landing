@@ -16,23 +16,35 @@ export function FadeIn({ children, delay = 0, className = '' }: FadeInProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const element = ref.current
+
+    if (!element) return
+
+    let timeout: ReturnType<typeof setTimeout> | undefined
+
+    if (typeof IntersectionObserver === 'undefined') {
+      timeout = setTimeout(() => setIsVisible(true), delay * 1000)
+
+      return () => {
+        if (timeout) clearTimeout(timeout)
+      }
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setTimeout(() => setIsVisible(true), delay * 1000)
+          observer.unobserve(element)
+          timeout = setTimeout(() => setIsVisible(true), delay * 1000)
         }
       },
       { threshold: 0.1 }
     )
 
-    if (ref.current) {
-      observer.observe(ref.current)
-    }
+    observer.observe(element)
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current)
-      }
+      observer.disconnect()
+      if (timeout) clearTimeout(timeout)
     }
   }, [delay])
 

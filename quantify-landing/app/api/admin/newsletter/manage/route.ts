@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAdmin } from '@/lib/auth'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
+import { readJsonBody } from '@/lib/security/http'
+import { z } from 'zod'
 
 export async function DELETE(request: NextRequest) {
   const admin = await isAdmin()
@@ -8,11 +10,13 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 
-  const { subscriberId } = await request.json()
-
-  if (!subscriberId) {
+  const body = await readJsonBody(request, 2 * 1024)
+  if (!body.ok) return body.response
+  const validation = z.object({ subscriberId: z.string().uuid() }).strict().safeParse(body.data)
+  if (!validation.success) {
     return NextResponse.json({ error: 'Subscriber ID required' }, { status: 400 })
   }
+  const { subscriberId } = validation.data
 
   const supabase = createAdminSupabaseClient()
 

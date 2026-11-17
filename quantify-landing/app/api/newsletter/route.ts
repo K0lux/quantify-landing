@@ -4,17 +4,27 @@
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { readJsonBody } from '@/lib/security/http'
 
 const newsletterSchema = z.object({
-  email: z.string().email('Email invalide').toLowerCase(),
-})
+  email: z.string().trim().max(254).email('Email invalide').toLowerCase(),
+  website: z.string().max(200).optional().default(''),
+}).strict()
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    
-    // Validation
-    const validatedData = newsletterSchema.parse(body)
+    const body = await readJsonBody(request, 2 * 1024)
+    if (!body.ok) return body.response
+
+    const validation = newsletterSchema.safeParse(body.data)
+    if (!validation.success) {
+      return NextResponse.json({ error: 'Email invalide.' }, { status: 400 })
+    }
+    const validatedData = validation.data
+
+    if (validatedData.website) {
+      return NextResponse.json({ success: true, message: 'Inscription réussie !' })
+    }
     
     const supabase = createAdminSupabaseClient()
 
@@ -83,14 +93,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Newsletter API error:', error)
-    
-    //if (error.name === 'ZodError') {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Email invalide', details: error.issues },
-        { status: 400 }
-      )
-    }
     
     return NextResponse.json(
       { error: 'Erreur serveur' },

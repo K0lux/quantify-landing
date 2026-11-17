@@ -83,11 +83,11 @@ export function SettingsForm({ initialValues }: { initialValues: SettingsValues 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="text-sm font-medium text-slate-700">
             Prénom
-            <input className={fieldClass} autoComplete="given-name" required value={values.profile.first_name} onChange={(event) => updateProfile('first_name', event.target.value)} />
+            <input className={fieldClass} autoComplete="given-name" maxLength={50} required value={values.profile.first_name} onChange={(event) => updateProfile('first_name', event.target.value)} />
           </label>
           <label className="text-sm font-medium text-slate-700">
             Nom
-            <input className={fieldClass} autoComplete="family-name" value={values.profile.last_name} onChange={(event) => updateProfile('last_name', event.target.value)} />
+            <input className={fieldClass} autoComplete="family-name" maxLength={80} value={values.profile.last_name} onChange={(event) => updateProfile('last_name', event.target.value)} />
           </label>
           <label className="text-sm font-medium text-slate-700">
             Adresse e-mail
@@ -96,7 +96,7 @@ export function SettingsForm({ initialValues }: { initialValues: SettingsValues 
           </label>
           <label className="text-sm font-medium text-slate-700">
             Téléphone
-            <input className={fieldClass} type="tel" autoComplete="tel" placeholder="+228 90 00 00 00" value={values.profile.phone} onChange={(event) => updateProfile('phone', event.target.value)} />
+            <input className={fieldClass} type="tel" autoComplete="tel" maxLength={30} placeholder="+228 90 00 00 00" value={values.profile.phone} onChange={(event) => updateProfile('phone', event.target.value)} />
           </label>
           <label className="text-sm font-medium text-slate-700">
             Pays
@@ -129,11 +129,11 @@ export function SettingsForm({ initialValues }: { initialValues: SettingsValues 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label className="text-sm font-medium text-slate-700">
             Consommation estimée
-            <input className={fieldClass} placeholder="Ex. 150 kWh par mois" value={values.energy.estimated_consumption} onChange={(event) => updateEnergy('estimated_consumption', event.target.value)} />
+            <input className={fieldClass} maxLength={80} placeholder="Ex. 150 kWh par mois" value={values.energy.estimated_consumption} onChange={(event) => updateEnergy('estimated_consumption', event.target.value)} />
           </label>
           <label className="text-sm font-medium text-slate-700">
             Fournisseur actuel
-            <input className={fieldClass} placeholder="Ex. CEET" value={values.energy.current_utility} onChange={(event) => updateEnergy('current_utility', event.target.value)} />
+            <input className={fieldClass} maxLength={80} placeholder="Ex. CEET" value={values.energy.current_utility} onChange={(event) => updateEnergy('current_utility', event.target.value)} />
           </label>
           <label className="text-sm font-medium text-slate-700 sm:col-span-2">
             Centres d’intérêt

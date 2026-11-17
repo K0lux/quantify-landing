@@ -80,7 +80,7 @@ export class SupabaseIntegration {
         auth_user_id: authUserId,
         email,
         country: waitlistUser?.country || 'TG',
-        user_type: waitlistUser?.user_type || 'particulier',
+        user_type: waitlistUser?.user_type === 'admin' ? 'particulier' : waitlistUser?.user_type || 'particulier',
         subscription_plan: 'free',
         subscription_status: 'active',
         onboarding_completed: false,

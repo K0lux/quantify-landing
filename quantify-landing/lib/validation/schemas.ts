@@ -21,15 +21,16 @@ export const emailSchema = z
     required_error: 'L\'email est requis',
     invalid_type_error: 'L\'email doit être une chaîne de caractères'
   })
+  .trim()
   .min(5, 'L\'email doit contenir au moins 5 caractères')
-  .max(100, 'L\'email ne peut pas dépasser 100 caractères')
+  .max(254, 'L\'email ne peut pas dépasser 254 caractères')
   .email('Veuillez entrer un email valide')
   .toLowerCase()
   .refine(
     (email) => {
-      // Rejeter les emails temporaires/jetables communs
+      const domain = email.split('@')[1] || ''
       const tempDomains = ['10minutemail', 'guerrillamail', 'tempmail', 'mailinator']
-      return !tempDomains.some(domain => email.includes(domain))
+      return !tempDomains.some(tempDomain => domain === tempDomain || domain.startsWith(`${tempDomain}.`))
     },
     'Les emails temporaires ne sont pas autorisés'
   )
@@ -39,13 +40,20 @@ export const phoneSchema = z
   .string({
     invalid_type_error: 'Le numéro de téléphone doit être une chaîne de caractères'
   })
-  .regex(
-    /^\+?[1-9]\d{7,14}$/,
-    'Le numéro de téléphone doit être valide (format international)'
-  )
+  .trim()
+  .max(30, 'Le numéro de téléphone est trop long')
+  .refine(value => /^\+?[0-9 ()-]*$/.test(value), 'Le numéro de téléphone contient des caractères invalides')
+  .refine(value => {
+    const digits = value.replace(/\D/g, '').length
+    return value === '' || (digits >= 8 && digits <= 15)
+  }, 'Le numéro de téléphone doit contenir entre 8 et 15 chiffres')
   .optional()
   .or(z.literal(''))
-  .transform(val => val === '' ? null : val)
+  .transform(val => {
+    if (!val) return null
+    const digits = val.replace(/\D/g, '')
+    return `${val.startsWith('+') ? '+' : ''}${digits}`
+  })
 
 // Validation nom complet
 export const fullNameSchema = z
@@ -53,14 +61,15 @@ export const fullNameSchema = z
     required_error: 'Le nom complet est requis',
     invalid_type_error: 'Le nom doit être une chaîne de caractères'
   })
+  .trim()
   .min(2, 'Le nom doit contenir au moins 2 caractères')
   .max(100, 'Le nom ne peut pas dépasser 100 caractères')
   .regex(
-    /^[a-zA-ZÀ-ÿ\u0100-\u017F\s'-]+$/,
+    /^[\p{L}\p{M} '-]+$/u,
     'Le nom ne peut contenir que des lettres, espaces, apostrophes et tirets'
   )
   .transform(name => 
-    name.trim().split(' ')
+    name.split(/\s+/)
       .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
       .join(' ')
   )
@@ -68,6 +77,8 @@ export const fullNameSchema = z
 // Validation code de parrainage
 export const referralCodeSchema = z
   .string()
+  .trim()
+  .toUpperCase()
   .length(8, 'Le code de parrainage doit contenir exactement 8 caractères')
   .regex(
     /^[A-Z0-9]{8}$/,
@@ -93,6 +104,8 @@ export const userTypeSchema = z.enum(
     invalid_type_error: 'Type d\'utilisateur invalide'
   }
 )
+
+export const publicUserTypeSchema = z.enum(['particulier', 'professionnel', 'institution', 'utility'])
 
 export const waitlistStatusSchema = z.enum(
   Object.values(WAITLIST_STATUS) as [string, ...string[]],
@@ -158,14 +171,15 @@ export const waitlistFormSchema = z.object({
   phone: phoneSchema,
   fullName: fullNameSchema,
   country: countrySchema,
-  userType: userTypeSchema,
+  userType: publicUserTypeSchema,
   referredBy: referralCodeSchema,
   acceptTerms: z
     .boolean()
     .refine(val => val === true, {
       message: 'Vous devez accepter les conditions d\'utilisation'
     }),
-  acceptMarketing: z.boolean().optional().default(false)
+  acceptMarketing: z.boolean().optional().default(false),
+  website: z.string().max(200).optional().default(''),
 }).strict()
 
 export type WaitlistFormInput = z.input<typeof waitlistFormSchema>
@@ -180,6 +194,7 @@ export const contactFormSchema = z.object({
   phone: phoneSchema,
   company: z
     .string()
+    .trim()
     .max(100, 'Le nom de l\'entreprise ne peut pas dépasser 100 caractères')
     .optional()
     .or(z.literal(''))
@@ -188,15 +203,20 @@ export const contactFormSchema = z.object({
     .string({
       required_error: 'Le sujet est requis'
     })
+    .trim()
     .min(5, 'Le sujet doit contenir au moins 5 caractères')
-    .max(200, 'Le sujet ne peut pas dépasser 200 caractères'),
+    .max(200, 'Le sujet ne peut pas dépasser 200 caractères')
+    .refine(value => !/[\u0000-\u001F\u007F]/.test(value), 'Le sujet contient des caractères invalides'),
   message: z
     .string({
       required_error: 'Le message est requis'
     })
+    .trim()
     .min(20, 'Le message doit contenir au moins 20 caractères')
-    .max(2000, 'Le message ne peut pas dépasser 2000 caractères'),
-  type: z.enum(['general', 'investment', 'partnership', 'support', 'media']).default('general')
+    .max(2000, 'Le message ne peut pas dépasser 2000 caractères')
+    .refine(value => !/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(value), 'Le message contient des caractères invalides'),
+  type: z.enum(['general', 'investment', 'partnership', 'support', 'media', 'press']).default('general'),
+  website: z.string().max(200).optional().default(''),
 }).strict()
 
 export type ContactFormInput = z.infer<typeof contactFormSchema>
@@ -235,7 +255,7 @@ export const createWaitlistUserSchema = z.object({
   phone: phoneSchema,
   full_name: fullNameSchema.nullable().optional(),
   country: countrySchema,
-  user_type: userTypeSchema,
+  user_type: publicUserTypeSchema,
   referral_code: referralCodeSchema.default(() => 
     Math.random().toString(36).substring(2, 10).toUpperCase()
   ),
@@ -271,7 +291,7 @@ export const createUserProfileSchema = z.object({
   avatar_url: z.string().url().nullable().optional(),
   country: countrySchema,
   city: z.string().nullable().optional(),
-  user_type: userTypeSchema,
+  user_type: publicUserTypeSchema,
   subscription_plan: subscriptionPlanSchema.default('free'),
   subscription_status: z.enum(['active', 'inactive', 'cancelled', 'past_due']).default('active'),
   onboarding_completed: z.boolean().default(false),
@@ -522,21 +542,20 @@ export function createValidationError(errors: z.ZodError): {
 // SCHÉMA API WAITLIST (accepte les données post-transformation du client)
 // ==========================================
 export const waitlistApiSchema = z.object({
-  fullName: z.string().min(2).max(100),
-  email: z.string().email(),
-  phone: z.string().nullable().optional(),
-  userType: z.enum(
-    Object.values(USER_TYPES) as [string, ...string[]]
-  ),
+  fullName: fullNameSchema,
+  email: emailSchema,
+  phone: z.union([phoneSchema, z.null()]).optional(),
+  userType: publicUserTypeSchema,
   country: z.enum(
     Object.values(COUNTRIES) as [string, ...string[]]
   ),
-  referredBy: z.string().nullable().optional(),
+  referredBy: z.union([referralCodeSchema, z.null()]).optional(),
   acceptTerms: z.literal(true, {
     errorMap: () => ({ message: 'Vous devez accepter les conditions' })
   }),
   acceptMarketing: z.boolean().optional().default(false),
-})
+  website: z.string().max(200).optional().default(''),
+}).strict()
 
 export const newsletterSchema = z.object({
   email: z.string().email('Email invalide').toLowerCase(),

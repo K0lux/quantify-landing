@@ -47,16 +47,16 @@ export function AdminProfileForm({ initialProfile }: { initialProfile: AdminProf
     <form onSubmit={save} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="text-sm font-medium text-slate-700">Prénom
-          <input required autoComplete="given-name" className={inputClass} value={profile.first_name} onChange={(event) => setProfile((current) => ({ ...current, first_name: event.target.value }))} />
+          <input required autoComplete="given-name" maxLength={50} className={inputClass} value={profile.first_name} onChange={(event) => setProfile((current) => ({ ...current, first_name: event.target.value }))} />
         </label>
         <label className="text-sm font-medium text-slate-700">Nom
-          <input autoComplete="family-name" className={inputClass} value={profile.last_name} onChange={(event) => setProfile((current) => ({ ...current, last_name: event.target.value }))} />
+          <input autoComplete="family-name" maxLength={80} className={inputClass} value={profile.last_name} onChange={(event) => setProfile((current) => ({ ...current, last_name: event.target.value }))} />
         </label>
         <label className="text-sm font-medium text-slate-700">Adresse e-mail
           <input type="email" className={`${inputClass} bg-slate-50`} value={profile.email} readOnly />
         </label>
         <label className="text-sm font-medium text-slate-700">Téléphone
-          <input type="tel" autoComplete="tel" placeholder="+228 90 00 00 00" className={inputClass} value={profile.phone} onChange={(event) => setProfile((current) => ({ ...current, phone: event.target.value }))} />
+          <input type="tel" autoComplete="tel" maxLength={30} placeholder="+228 90 00 00 00" className={inputClass} value={profile.phone} onChange={(event) => setProfile((current) => ({ ...current, phone: event.target.value }))} />
         </label>
         <label className="text-sm font-medium text-slate-700">Pays
           <select className={inputClass} value={profile.country} onChange={(event) => setProfile((current) => ({ ...current, country: event.target.value }))}>

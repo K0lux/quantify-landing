@@ -8,6 +8,7 @@ import { Check, Loader2, Mail } from 'lucide-react'
 
 export function NewsletterForm() {
   const [email, setEmail] = useState('')
+  const [website, setWebsite] = useState('')
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -23,7 +24,7 @@ export function NewsletterForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, website }),
       })
 
       if (!response.ok) {
@@ -46,10 +47,15 @@ export function NewsletterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3 lg:flex-row">
+      <div className="pointer-events-none absolute -left-[10000px] h-px w-px overflow-hidden" aria-hidden="true">
+        <label htmlFor="newsletter-website">Laisser ce champ vide</label>
+        <input id="newsletter-website" type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} />
+      </div>
       <div className="flex-1 relative">
         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
         <input
           type="email"
+          maxLength={254}
           required
           aria-label="Votre adresse e-mail"
           value={email}

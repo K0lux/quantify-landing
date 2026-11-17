@@ -1,30 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { z } from 'zod'
-import { validateWithErrors } from '@/lib/validation/schemas'
+import { emailSchema, fullNameSchema, validateWithErrors } from '@/lib/validation/schemas'
+import { readJsonBody } from '@/lib/security/http'
 
 const registerSchema = z.object({
-  email: z.string().email('Email invalide').toLowerCase(),
+  email: emailSchema,
   password: z.string()
     .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+    .max(128, 'Le mot de passe est trop long')
     .regex(/[A-Z]/, 'Le mot de passe doit contenir au moins une majuscule')
     .regex(/[a-z]/, 'Le mot de passe doit contenir au moins une minuscule')
     .regex(/[0-9]/, 'Le mot de passe doit contenir au moins un chiffre'),
-  fullName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères').max(100),
-})
+  fullName: fullNameSchema,
+}).strict()
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const body = await request.json().catch(() => null)
+    const body = await readJsonBody(request, 4 * 1024)
+    if (!body.ok) return body.response
 
-    if (!body) {
-      return NextResponse.json(
-        { success: false, code: 'INVALID_JSON', message: 'Corps de requête invalide' },
-        { status: 400 }
-      )
-    }
-
-    const validation = validateWithErrors(registerSchema, body)
+    const validation = validateWithErrors(registerSchema, body.data)
     if (!validation.success) {
       return NextResponse.json(
         { success: false, code: 'VALIDATION_ERROR', message: 'Données invalides', errors: validation.errors },
@@ -116,7 +112,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         first_name: firstName,
         last_name: lastName,
         country: waitlistUser.country || 'TG',
-        user_type: waitlistUser.user_type || 'particulier',
+        user_type: waitlistUser.user_type === 'admin' ? 'particulier' : waitlistUser.user_type || 'particulier',
         subscription_plan: 'free',
         subscription_status: 'active',
         onboarding_completed: false,

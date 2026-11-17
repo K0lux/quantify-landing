@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isAdmin } from '@/lib/auth'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
+import { readJsonBody } from '@/lib/security/http'
+import { escapeHtml } from '@/lib/security/escape-html'
+import { z } from 'zod'
+
+const notificationSchema = z.object({
+  audience: z.enum(['all', 'pending', 'invited']),
+  title: z.string().trim().min(1).max(120).refine(value => !/[\r\n]/.test(value)),
+  message: z.string().trim().min(1).max(5_000),
+}).strict()
 
 export async function POST(request: NextRequest) {
   const admin = await isAdmin()
@@ -15,15 +24,15 @@ export async function POST(request: NextRequest) {
   }
   const resend = new Resend(resendApiKey)
 
-  const { audience, title, message } = await request.json()
-
-  if (!title || !message) {
-    return NextResponse.json({ error: 'Title and message required' }, { status: 400 })
-  }
+  const body = await readJsonBody(request, 8 * 1024)
+  if (!body.ok) return body.response
+  const validation = notificationSchema.safeParse(body.data)
+  if (!validation.success) return NextResponse.json({ error: 'Données de notification invalides.' }, { status: 400 })
+  const { audience, title, message } = validation.data
 
   const supabase = createAdminSupabaseClient()
 
-  let query = supabase.from('waitlist').select('email, full_name')
+  let query = supabase.from('waitlist').select('email, full_name', { count: 'exact' })
 
   if (audience === 'pending') {
     query = query.eq('status', 'pending')
@@ -31,10 +40,14 @@ export async function POST(request: NextRequest) {
     query = query.eq('status', 'invited')
   }
 
-  const { data: users, error } = await query
+  const { data: users, count, error } = await query.limit(501)
 
   if (error || !users) {
     return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
+  }
+
+  if ((count ?? users.length) > 500) {
+    return NextResponse.json({ error: 'Limite de 500 destinataires par envoi.' }, { status: 413 })
   }
 
   const emails = users.map((u) => u.email).filter(Boolean)
@@ -54,10 +67,10 @@ export async function POST(request: NextRequest) {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px;">
             <div style="background: #001d3d; border-radius: 16px; padding: 32px; color: white; text-align: center;">
-              <h1 style="margin: 0 0 8px; font-size: 24px;">${title}</h1>
+            <h1 style="margin: 0 0 8px; font-size: 24px;">${escapeHtml(title)}</h1>
             </div>
             <div style="padding: 24px 0; color: #334155; font-size: 16px; line-height: 1.6;">
-              ${message.replace(/\n/g, '<br>')}
+              ${escapeHtml(message).replace(/\r?\n/g, '<br>')}
             </div>
             <div style="text-align: center; padding: 16px 0; color: #94a3b8; font-size: 12px;">
               © Quantify ${new Date().getFullYear()}

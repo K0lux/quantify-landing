@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { isAdmin } from '@/lib/auth'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
+import { readJsonBody } from '@/lib/security/http'
 
 const updateSchema = z.object({
   id: z.string().uuid(),
@@ -13,8 +14,10 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Accès refusé.' }, { status: 403 })
   }
 
-  const body = await request.json().catch(() => null)
-  const validation = updateSchema.safeParse(body)
+  const body = await readJsonBody(request, 2 * 1024)
+  if (!body.ok) return body.response
+
+  const validation = updateSchema.strict().safeParse(body.data)
   if (!validation.success) {
     return NextResponse.json({ error: 'Données invalides.' }, { status: 400 })
   }

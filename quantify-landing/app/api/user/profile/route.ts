@@ -3,30 +3,31 @@ import { getCurrentUser } from '@/lib/auth'
 import { getCurrentUserData, updateUserProfile, updateUserPreferences } from '@/lib/services/user-service'
 import { validateWithErrors } from '@/lib/validation/schemas'
 import { z } from 'zod'
+import { readJsonBody } from '@/lib/security/http'
 
 const updateProfileSchema = z.object({
-  first_name: z.string().trim().min(1, 'Prénom requis').max(50, 'Prénom trop long').optional(),
-  last_name: z.string().trim().max(80, 'Nom trop long').optional(),
-  phone: z.string().trim().max(30).regex(/^\+?[0-9 ()-]{7,20}$/).or(z.literal('')).optional(),
+  first_name: z.string().trim().min(1, 'Prénom requis').max(50, 'Prénom trop long').regex(/^[\p{L}\p{M} '-]+$/u).optional(),
+  last_name: z.string().trim().max(80, 'Nom trop long').regex(/^[\p{L}\p{M} '-]*$/u).optional(),
+  phone: z.string().trim().max(30).regex(/^\+?[0-9 ()-]{7,20}$/).refine(value => value.replace(/\D/g, '').length >= 8 && value.replace(/\D/g, '').length <= 15).or(z.literal('')).optional(),
   country: z.enum(['TG', 'BF', 'CI', 'ML', 'NE', 'SN', 'BJ', 'GW']).optional(),
   user_type: z.enum(['particulier', 'professionnel', 'institution', 'utility']).optional(),
-})
+}).strict()
 
 const updatePreferencesSchema = z.object({
   language: z.enum(['fr', 'en']).optional(),
-  timezone: z.string().optional(),
+  timezone: z.string().trim().max(64).regex(/^[A-Za-z0-9_+./-]+$/).optional(),
   currency: z.enum(['XOF', 'EUR', 'USD']).optional(),
   notifications: z.object({
     email: z.boolean().optional(),
     sms: z.boolean().optional(),
     push: z.boolean().optional(),
     marketing: z.boolean().optional(),
-  }).optional(),
+  }).strict().optional(),
   privacy: z.object({
     profile_visibility: z.enum(['public', 'private']).optional(),
     analytics_opt_out: z.boolean().optional(),
-  }).optional(),
-})
+  }).strict().optional(),
+}).strict()
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -86,9 +87,10 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body = await readJsonBody(request, 8 * 1024)
+    if (!body.ok) return body.response
     
-    const validation = validateWithErrors(updateProfileSchema, body)
+    const validation = validateWithErrors(updateProfileSchema, body.data)
     
     if (!validation.success) {
       return NextResponse.json({
@@ -131,9 +133,10 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body = await readJsonBody(request, 8 * 1024)
+    if (!body.ok) return body.response
     
-    const validation = validateWithErrors(updatePreferencesSchema, body)
+    const validation = validateWithErrors(updatePreferencesSchema, body.data)
     
     if (!validation.success) {
       return NextResponse.json({

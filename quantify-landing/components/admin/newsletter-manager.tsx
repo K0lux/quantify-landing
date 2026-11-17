@@ -119,7 +119,7 @@ export function NewsletterManager({
 
           <div>
             <label htmlFor="nl-body" className="block text-sm font-semibold text-slate-600 mb-1">
-              Contenu (HTML supporté)
+              Contenu (texte brut)
             </label>
             <textarea
               id="nl-body"
@@ -127,6 +127,7 @@ export function NewsletterManager({
               onChange={(e) => setBody(e.target.value)}
               required
               rows={10}
+              maxLength={12000}
               placeholder="Rédigez votre newsletter..."
               className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900 outline-none text-sm resize-none font-mono"
             />

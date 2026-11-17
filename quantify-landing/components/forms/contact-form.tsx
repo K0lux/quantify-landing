@@ -18,7 +18,8 @@ export function ContactForm() {
     phone: '',
     subject: '',
     message: '',
-    type: 'general'
+    type: 'general',
+    website: '',
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +47,8 @@ export function ContactForm() {
         phone: '',
         subject: '',
         message: '',
-        type: 'general'
+        type: 'general',
+        website: '',
       })
 
       setTimeout(() => setSubmitted(false), 3000)
@@ -75,6 +77,10 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-2xl p-8 shadow-lg">
+      <div className="pointer-events-none absolute -left-[10000px] h-px w-px overflow-hidden" aria-hidden="true">
+        <label htmlFor="contact-website">Laisser ce champ vide</label>
+        <input id="contact-website" type="text" name="website" tabIndex={-1} autoComplete="off" value={formData.website} onChange={(event) => setFormData({ ...formData, website: event.target.value })} />
+      </div>
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -82,6 +88,7 @@ export function ContactForm() {
           </label>
           <input
             type="text"
+            maxLength={100}
             required
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -96,6 +103,7 @@ export function ContactForm() {
           </label>
           <input
             type="email"
+            maxLength={254}
             required
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -112,6 +120,7 @@ export function ContactForm() {
           </label>
           <input
             type="tel"
+            maxLength={30}
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -144,6 +153,7 @@ export function ContactForm() {
         </label>
         <input
           type="text"
+          maxLength={200}
           required
           value={formData.subject}
           onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
@@ -159,6 +169,7 @@ export function ContactForm() {
         <textarea
           required
           rows={6}
+          maxLength={2000}
           value={formData.message}
           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
           className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"

@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isAdmin } from '@/lib/auth'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
+import { readJsonBody } from '@/lib/security/http'
+import { escapeHtml } from '@/lib/security/escape-html'
+import { z } from 'zod'
+
+const newsletterSchema = z.object({
+  subject: z.string().trim().min(1).max(150).refine(value => !/[\r\n]/.test(value)),
+  body: z.string().trim().min(1).max(12_000),
+}).strict()
 
 export async function POST(request: NextRequest) {
   const admin = await isAdmin()
@@ -15,21 +23,26 @@ export async function POST(request: NextRequest) {
   }
   const resend = new Resend(resendApiKey)
 
-  const { subject, body } = await request.json()
-
-  if (!subject || !body) {
-    return NextResponse.json({ error: 'Subject and body required' }, { status: 400 })
-  }
+  const requestBody = await readJsonBody(request, 16 * 1024)
+  if (!requestBody.ok) return requestBody.response
+  const validation = newsletterSchema.safeParse(requestBody.data)
+  if (!validation.success) return NextResponse.json({ error: 'Objet ou contenu invalide.' }, { status: 400 })
+  const { subject, body } = validation.data
 
   const supabase = createAdminSupabaseClient()
 
-  const { data: subscribers, error } = await supabase
+  const { data: subscribers, count, error } = await supabase
     .from('newsletter_subscribers')
-    .select('email')
+    .select('email', { count: 'exact' })
     .eq('status', 'active')
+    .limit(501)
 
   if (error || !subscribers) {
     return NextResponse.json({ error: 'Failed to fetch subscribers' }, { status: 500 })
+  }
+
+  if ((count ?? subscribers.length) > 500) {
+    return NextResponse.json({ error: 'Limite de 500 destinataires par envoi. Réduisez l’audience.' }, { status: 413 })
   }
 
   const emails = subscribers.map((s) => s.email).filter(Boolean)
@@ -52,7 +65,7 @@ export async function POST(request: NextRequest) {
               <h1 style="color: white; margin: 0; font-size: 28px;">Quantify</h1>
             </div>
             <div style="padding: 32px; color: #334155; font-size: 16px; line-height: 1.6;">
-              ${body}
+              ${escapeHtml(body).replace(/\r?\n/g, '<br>')}
             </div>
             <div style="background: #f1f5f9; border-radius: 0 0 16px 16px; padding: 24px; text-align: center; color: #94a3b8; font-size: 12px;">
               <p>© Quantify ${new Date().getFullYear()} — Vous recevez cet email car vous êtes abonné à notre newsletter.</p>

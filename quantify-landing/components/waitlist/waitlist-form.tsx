@@ -68,9 +68,8 @@ const USER_TYPES_OPTIONS = Object.entries(USER_TYPES).map(([key, value]) => ({
   label: key === 'PARTICULIER' ? 'Particulier' :
          key === 'PROFESSIONNEL' ? 'Professionnel' :
          key === 'INSTITUTION' ? 'Institution' :
-         key === 'UTILITY' ? 'Utility Company' :
-         key === 'ADMIN' ? 'Administrateur' : value
-}))
+         key === 'UTILITY' ? 'Utility Company' : value
+})).filter((option) => option.value !== USER_TYPES.ADMIN)
 
 // ==========================================
 // COMPOSANT PRINCIPAL
@@ -120,7 +119,8 @@ export function WaitlistForm({
       userType: 'particulier',
       referredBy: initialReferralCode || searchParams.get('ref') || '',
       acceptTerms: false,
-      acceptMarketing: false
+      acceptMarketing: false,
+      website: '',
     },
     mode: 'onBlur'
   })
@@ -368,6 +368,10 @@ export function WaitlistForm({
       )}
       
       <div className={compact ? 'space-y-4 sm:space-y-5' : 'space-y-6'}>
+        <div className="pointer-events-none absolute -left-[10000px] h-px w-px overflow-hidden" aria-hidden="true">
+          <label htmlFor="website">Laisser ce champ vide</label>
+          <input {...register('website')} id="website" type="text" tabIndex={-1} autoComplete="off" />
+        </div>
         {/* Email */}
         <div>
           <label htmlFor="email" className="block text-sm font-semibold text-slate-800 mb-1.5">
@@ -376,6 +380,7 @@ export function WaitlistForm({
           <input
             {...register('email')}
             type="email"
+            maxLength={254}
             id="email"
             autoComplete="email"
             placeholder="votre@email.com"
@@ -397,6 +402,7 @@ export function WaitlistForm({
           <input
             {...register('fullName')}
             type="text"
+            maxLength={100}
             id="fullName"
             autoComplete="name"
             placeholder="Prénom Nom"
@@ -418,6 +424,7 @@ export function WaitlistForm({
           <input
             {...register('phone')}
             type="tel"
+            maxLength={30}
             id="phone"
             autoComplete="tel"
             placeholder="+228 XX XX XX XX"
@@ -505,6 +512,7 @@ export function WaitlistForm({
                 <input
                   {...register('referredBy')}
                   type="text"
+                  maxLength={8}
                   id="referredBy"
                   placeholder="CODE12345"
                   className={getFieldClassName('referredBy', 

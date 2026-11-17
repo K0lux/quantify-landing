@@ -3,27 +3,28 @@ import { z } from 'zod'
 import { DEFAULT_USER_PREFERENCES, type UserPreferences } from '@/types'
 import { getCurrentUser } from '@/lib/auth'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
+import { readJsonBody } from '@/lib/security/http'
 
 const settingsSchema = z.object({
   profile: z.object({
-    first_name: z.string().trim().min(1).max(50),
-    last_name: z.string().trim().max(80),
-    phone: z.string().trim().max(30).regex(/^\+?[0-9 ()-]{7,20}$/).or(z.literal('')),
+    first_name: z.string().trim().min(1).max(50).regex(/^[\p{L}\p{M} '-]+$/u),
+    last_name: z.string().trim().max(80).regex(/^[\p{L}\p{M} '-]*$/u),
+    phone: z.string().trim().max(30).regex(/^\+?[0-9 ()-]{7,20}$/).refine(value => value.replace(/\D/g, '').length >= 8 && value.replace(/\D/g, '').length <= 15).or(z.literal('')),
     country: z.enum(['TG', 'BF', 'CI', 'ML', 'NE', 'SN', 'BJ', 'GW']),
     user_type: z.enum(['particulier', 'professionnel', 'institution', 'utility']),
-  }),
+  }).strict(),
   energy: z.object({
     interests: z.array(z.string().trim().min(1).max(40)).max(12),
     estimated_consumption: z.string().trim().max(80),
     current_utility: z.string().trim().max(80),
     has_analog_meter: z.boolean(),
-  }),
+  }).strict(),
   notifications: z.object({
     email: z.boolean(),
     sms: z.boolean(),
     marketing: z.boolean(),
-  }),
-})
+  }).strict(),
+}).strict()
 
 function getPreferences(value: unknown): UserPreferences {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -125,8 +126,10 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ success: false, message: 'Authentification requise.' }, { status: 401 })
   }
 
-  const body = await request.json().catch(() => null)
-  const validation = settingsSchema.safeParse(body)
+  const body = await readJsonBody(request, 8 * 1024)
+  if (!body.ok) return body.response
+
+  const validation = settingsSchema.safeParse(body.data)
 
   if (!validation.success) {
     return NextResponse.json({ success: false, message: 'Vérifiez les champs du formulaire.' }, { status: 400 })

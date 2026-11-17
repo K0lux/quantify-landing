@@ -82,6 +82,7 @@ export function NotificationSender() {
           <input
             id="notif-title"
             type="text"
+            maxLength={120}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -100,6 +101,7 @@ export function NotificationSender() {
             onChange={(e) => setMessage(e.target.value)}
             required
             rows={5}
+            maxLength={5000}
             placeholder="Rédigez votre notification..."
             className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900 outline-none text-sm resize-none"
           />

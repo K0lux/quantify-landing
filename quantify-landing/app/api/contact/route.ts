@@ -4,17 +4,24 @@
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { contactFormSchema } from '@/lib/validation/schemas'
+import { readJsonBody } from '@/lib/security/http'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json().catch(() => null)
-    const validation = contactFormSchema.safeParse(body)
+    const body = await readJsonBody(request, 8 * 1024)
+    if (!body.ok) return body.response
+
+    const validation = contactFormSchema.safeParse(body.data)
 
     if (!validation.success) {
       return NextResponse.json(
         { error: 'Vérifiez les champs du formulaire.', details: validation.error.flatten() },
         { status: 400 }
       )
+    }
+
+    if (validation.data.website) {
+      return NextResponse.json({ success: true, message: 'Message envoyé avec succès' })
     }
 
     const supabase = createAdminSupabaseClient()

@@ -12,6 +12,8 @@ import type {
 } from '@/types'
 import type { WaitlistFormOutput } from '@/lib/validation/schemas'
 import { nanoid } from 'nanoid'
+import { readJsonBody } from '@/lib/security/http'
+import { getClientIp } from '@/lib/security/rate-limit'
 
 interface WaitlistCreateResponse extends APIResponse<WaitlistUser> {
   position?: number
@@ -318,16 +320,10 @@ class WaitlistService {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const body = await request.json().catch(() => null)
+    const body = await readJsonBody(request, 8 * 1024)
+    if (!body.ok) return body.response
 
-    if (!body) {
-      return NextResponse.json(
-        { success: false, code: 'INVALID_JSON', message: 'Corps de requête invalide' },
-        { status: 400 }
-      )
-    }
-
-    const validation = validateWithErrors(waitlistApiSchema, body)
+    const validation = validateWithErrors(waitlistApiSchema, body.data)
     if (!validation.success) {
       console.warn('[WaitlistAPI] Validation errors:', validation.errors)
       return NextResponse.json(
@@ -342,13 +338,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const validData = validation.data
-    const userIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
-    const userAgent = request.headers.get('user-agent') || 'unknown'
+    if (validData.website) {
+      return NextResponse.json({ success: true }, { status: 202 })
+    }
+
+    const userIP = getClientIp(request)
+    const userAgent = request.headers.get('user-agent')?.slice(0, 512) || 'unknown'
 
     const waitlistService = new WaitlistService()
     const waitlistInput: WaitlistFormOutput = {
       ...validData,
+      phone: validData.phone ?? null,
       acceptMarketing: validData.acceptMarketing ?? false,
+      website: validData.website ?? '',
     }
     const result = await waitlistService.createWaitlistEntry(waitlistInput, userIP, userAgent)
 
@@ -370,7 +372,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         success: false,
         code: 'INTERNAL_ERROR',
         message: 'Une erreur interne est survenue',
-        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     )

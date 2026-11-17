@@ -2,25 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { z } from 'zod'
-import { validateWithErrors } from '@/lib/validation/schemas'
+import { emailSchema, validateWithErrors } from '@/lib/validation/schemas'
+import { readJsonBody } from '@/lib/security/http'
 
 const loginSchema = z.object({
-  email: z.string().email('Email invalide').toLowerCase(),
-  password: z.string().min(1, 'Le mot de passe est requis'),
-})
+  email: emailSchema,
+  password: z.string().min(1, 'Le mot de passe est requis').max(128, 'Mot de passe trop long'),
+}).strict()
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const body = await request.json().catch(() => null)
+    const body = await readJsonBody(request, 4 * 1024)
+    if (!body.ok) return body.response
 
-    if (!body) {
-      return NextResponse.json(
-        { success: false, code: 'INVALID_JSON', message: 'Corps de requête invalide' },
-        { status: 400 }
-      )
-    }
-
-    const validation = validateWithErrors(loginSchema, body)
+    const validation = validateWithErrors(loginSchema, body.data)
     if (!validation.success) {
       return NextResponse.json(
         { success: false, code: 'VALIDATION_ERROR', message: 'Données invalides', errors: validation.errors },
