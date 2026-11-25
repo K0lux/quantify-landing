@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { Loader2, AlertCircle, Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
+import { getLocalRedirectPath } from '@/lib/auth-redirect'
+import { GoogleAuthButton } from '@/components/auth/google-auth-button'
+import { getAuthErrorMessage } from '@/components/auth/auth-error-message'
 
 interface LoginFormProps {
   className?: string
@@ -14,13 +17,13 @@ interface LoginFormProps {
 
 export function LoginForm({ className, redirectTo: redirectToProp = '/dashboard' }: LoginFormProps) {
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirect') || redirectToProp
+  const redirectTo = getLocalRedirectPath(searchParams.get('redirect'), redirectToProp)
   const [supabase] = useState(() => createClient())
+  const [error, setError] = useState<string | null>(() => getAuthErrorMessage(searchParams.get('authError')))
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -148,6 +151,17 @@ export function LoginForm({ className, redirectTo: redirectToProp = '/dashboard'
           'Se connecter'
         )}
       </button>
+
+      <div className="relative py-1">
+        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+          <div className="w-full border-t border-slate-200" />
+        </div>
+        <p className="relative text-center">
+          <span className="bg-white px-3 text-sm text-slate-500">ou</span>
+        </p>
+      </div>
+
+      <GoogleAuthButton intent="login" redirectTo={redirectTo} disabled={isLoading} />
 
       <p className="text-center text-sm text-slate-600">
         Pas encore de compte ?{' '}

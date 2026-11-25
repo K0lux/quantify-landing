@@ -1,5 +1,30 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Authentification Google
+
+L'authentification de l'application utilise Supabase Auth. Pour activer Google :
+
+1. **Récupérer l'URI de callback Supabase**
+   - Dans le tableau de bord Supabase, ouvrez le projet, puis **Authentication > Sign In / Providers > Google** (le nom du menu peut varier légèrement).
+   - Copiez l'URL de callback affichée sur cette page. Elle ressemble généralement à `https://<project-ref>.supabase.co/auth/v1/callback`.
+   - Cette URL est la destination de Google vers Supabase. Ce n'est pas l'URL `/auth/callback` de l'application.
+2. **Créer le client OAuth dans Google Cloud**
+   - Ouvrez [Google Cloud Console](https://console.cloud.google.com/) et sélectionnez un projet existant ou créez-en un.
+   - Dans **Google Auth Platform**, ouvrez **Branding** et renseignez le nom de l'application, l'adresse d'assistance et l'adresse de contact développeur.
+   - Dans **Audience**, choisissez **External** si les utilisateurs ne sont pas tous membres de votre organisation Google Workspace. En mode **Testing**, ajoutez les comptes Google autorisés dans **Test users**. Pour ouvrir l'accès à tous, publiez l'application selon les exigences affichées par Google.
+   - Ouvrez **Clients > Create client**, choisissez **Web application**, puis donnez un nom, par exemple `Quantify Web`.
+   - Dans **Authorized redirect URIs**, ajoutez exactement l'URI copiée dans Supabase à l'étape 1. Ne mettez pas `http://localhost:3000/auth/callback` dans ce champ : Google doit d'abord retourner vers Supabase.
+   - Cliquez sur **Create**, puis copiez le **Client ID** et le **Client Secret**. Gardez le secret confidentiel.
+3. **Reporter les identifiants dans Supabase**
+   - Revenez dans **Authentication > Sign In / Providers > Google**.
+   - Activez Google, collez le **Client ID** et le **Client Secret** dans les champs correspondants, puis enregistrez.
+4. **Autoriser les retours vers l'application**
+   - Dans Supabase, ouvrez **Authentication > URL Configuration**.
+   - Définissez **Site URL** sur l'adresse principale de l'application en production, par exemple `https://<votre-domaine>`.
+   - Dans **Redirect URLs**, ajoutez `http://localhost:3000/auth/callback` pour le développement et `https://<votre-domaine>/auth/callback` pour la production. Ajoutez chaque origine/environnement utilisé explicitement.
+
+Les identifiants Google restent configurés dans Supabase et ne doivent pas être ajoutés au code de l'application. La création de compte Google est réservée aux adresses déjà inscrites sur la waitlist, comme l'inscription par email.
+
 ## Getting Started
 
 First, run the development server:
